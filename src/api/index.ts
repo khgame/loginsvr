@@ -12,27 +12,24 @@ import { createServer, Server } from "http";
 const objectToArray = (dict: any): any[] =>
     Object.keys(dict).map((name) => dict[name]);
 
-class Application {
-    private app: Koa;
+export class ApiApplication {
+    private api: Koa;
     private server: Server;
 
     constructor() {
-        this.app = new Koa();
-
-        useContainer(Container);
-
-        this.server = createServer(this.app.callback());
+        this.api = new Koa();
+        this.server = createServer(this.api.callback());
         this.init();
     }
 
     public start(port: number) {
-        this.app.listen(port, (): void => {
-            console.log(`Koa server has started, running with: http://127.0.0.1:${port}. `);
+        this.api.listen(port, (): void => {
+            console.log(`Koa server has started, running at: http://127.0.0.1:${port}. `);
         });
     }
 
     private init() {
-        this.app.use(async (ctx: Koa.Context, next: Function) => {
+        this.api.use(async (ctx: Koa.Context, next: Function) => {
             try {
                 await next();
             } catch (error) {
@@ -46,9 +43,9 @@ class Application {
             }
         });
 
-        useMiddlewares(this.app, 'dev');
+        useMiddlewares(this.api, process.env.NODE_ENV || "development");
 
-        this.app = useKoaServer<Koa>(this.app, {
+        this.api = useKoaServer<Koa>(this.api, {
             routePrefix: "/v1",
             validation: true,
             controllers: objectToArray(controllers),
@@ -57,6 +54,3 @@ class Application {
         useContainer(Container);
     }
 }
-
-const app = new Application();
-app.start(6002);

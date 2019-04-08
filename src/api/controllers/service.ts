@@ -1,4 +1,4 @@
-import {API, Get} from "../decorators/index";
+import {API, Get, Post} from "../decorators";
 
 @API("/service")
 export class ServiceController {
@@ -17,6 +17,11 @@ export class ServiceController {
         return {
             mock: "choose_server"
         };
+    }
+
+    @Post("/heartbeat")
+    public async heartbeat(){
+
     }
 
 }

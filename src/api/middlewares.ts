@@ -4,11 +4,11 @@ import * as bodyParser from "koa-bodyparser";
 import * as logger from "koa-logger";
 
 const apply: { [key: string]: () => Koa.Middleware[] } = {
-    ["prod"]: () => [
+    ["production"]: () => [
         cors(),
         bodyParser()
     ],
-    ["dev"]: () => [
+    ["development"]: () => [
         cors(),
         bodyParser(),
         logger(),
