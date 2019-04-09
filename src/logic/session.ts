@@ -5,11 +5,10 @@ import {validate} from "./service/validator";
 import {Global} from "../global";
 
 
-
 @Service()
 export class SessionService {
 
-    static inst : SessionService;
+    static inst: SessionService;
 
     constructor() {
         SessionService.inst = this;
@@ -19,14 +18,14 @@ export class SessionService {
     async createLoginToken(
         validatorIdentity: string,
         userIdentity: string
-    ){
+    ) {
         const combineIdentity = validatorIdentity + userIdentity;
         const tokenKey = getRedisKey('session-login-tokens', combineIdentity);
         const md5 = crypto.createHash('md5');
         const loginToken = md5.update(combineIdentity + Math.random()).digest('hex');
         await redis().hset(tokenKey, loginToken, Date.now() + 1000 * 60 * 10);
         await redis().expire(tokenKey, 10 * 60);
-        redis().hgetall(tokenKey, function(err, reply) {
+        redis().hgetall(tokenKey, function (err, reply) {
             if (reply) {
                 Object.keys(reply).forEach(key => {
                     if (reply[key] && parseInt(reply[key]) < Date.now()) {
@@ -44,7 +43,7 @@ export class SessionService {
         loginToken: string,
         secret: string,
         algorithm: string,
-        ) {
+    ) {
         const combineIdentity = validatorIdentity + userIdentity;
         const hashKey = getRedisKey('session-login-tokens', combineIdentity);
         const checkHash = await redis().hget(hashKey, loginToken);
@@ -52,7 +51,13 @@ export class SessionService {
             throw new Error("loginToken are not exist in the hash blobs.");
         }
 
-        const validateResult = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm)
+        const validateRsp = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm);
+
+        if (!validateRsp.result) {
+            return { result: false };
+        }
+
+
         return {
             validator: Global.conf.validator,
 

@@ -19,9 +19,7 @@ export const validate = async (
     });
 
     if (rsp.status !== 200){
-        throw new Error("validator status error");
+        throw new Error("validator response status error");
     }
-    // console.log("data", rsp.data);
-    // console.log("result", rsp.status);
     return rsp.data;
 };
