@@ -46,9 +46,9 @@ export class ApiApplication {
             controllers: objectToArray(controllers),
             classTransformer: false,
             currentUserChecker: async (action: Action) => {
-                const token = action.request.headers.sessionId;
-                if (token) {
-                    const redisKey = getRedisKey('session', token);
+                const session_id = action.request.headers.session_id;
+                if (session_id) {
+                    const redisKey = getRedisKey('session', session_id);
                     const uid = await redis().get(redisKey);
                     if (uid) {
                         await redis().set(redisKey, uid, "EX", 7200);
