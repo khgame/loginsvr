@@ -1,15 +1,12 @@
 import * as Koa from "koa";
-import * as cors from "@koa/cors";
 import * as bodyParser from "koa-bodyparser";
 import * as logger from "koa-logger";
 
 const apply: { [key: string]: () => Koa.Middleware[] } = {
     ["production"]: () => [
-        cors(),
         bodyParser()
     ],
     ["development"]: () => [
-        cors(),
         bodyParser(),
         logger(),
     ]

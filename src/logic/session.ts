@@ -15,11 +15,15 @@ export class SessionService {
         console.log("Service: instance created ", SessionService.inst);
     }
 
+    static getIdentityString(validatorIdentity: string, userIdentity: string) {
+        return `${validatorIdentity}::${userIdentity}`;
+    }
+
     async createLoginToken(
         validatorIdentity: string,
         userIdentity: string
     ) {
-        const combineIdentity = validatorIdentity + userIdentity;
+        const combineIdentity = SessionService.getIdentityString(validatorIdentity, userIdentity);
         const tokenKey = getRedisKey('session-login-tokens', combineIdentity);
         const md5 = crypto.createHash('md5');
         const loginToken = md5.update(combineIdentity + Math.random()).digest('hex');
@@ -44,7 +48,7 @@ export class SessionService {
         secret: string,
         algorithm: string,
     ) {
-        const combineIdentity = validatorIdentity + userIdentity;
+        const combineIdentity = SessionService.getIdentityString(validatorIdentity, userIdentity);
         const hashKey = getRedisKey('session-login-tokens', combineIdentity);
         const checkHash = await redis().hget(hashKey, loginToken);
         if (!checkHash) {
@@ -54,7 +58,7 @@ export class SessionService {
         const validateRsp = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm);
 
         if (!validateRsp.result) {
-            return { result: false };
+            return {result: false};
         }
 
 
@@ -62,8 +66,7 @@ export class SessionService {
             validator: Global.conf.validator,
 
         };
-
-
     }
+
 
 }

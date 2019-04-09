@@ -19,10 +19,10 @@
   },
   "homepage": "https://github.com/khgame/loginsvr#readme",
   "dependencies": {
-    "@types/fs-extra": "^5.0.5",
     "axios": "^0.18.0",
     "fs-extra": "^7.0.1",
     "ioredis": "^4.9.0",
+    "kcors": "^2.2.2",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-logger": "^3.2.0",
@@ -35,12 +35,11 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@koa/cors": "^3.0.0",
+    "@types/fs-extra": "^5.0.5",
     "@types/ioredis": "^4.0.10",
     "@types/koa": "^2.0.48",
     "@types/koa-bodyparser": "^4.2.2",
     "@types/koa-logger": "^3.1.1",
-    "@types/koa__cors": "^2.2.3",
     "cross-env": "^5.2.0",
     "nodemon": "^1.18.10",
     "ts-node": "^8.0.3",

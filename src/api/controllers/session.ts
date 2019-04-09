@@ -1,6 +1,6 @@
-import {API, Get, Post} from "../decorators";
+import {API, Get, Post, Body, Param} from "../decorators";
 import {SessionService} from "../../logic/session";
-import {Body} from "routing-controllers";
+import {Authorized, CurrentUser, HeaderParam} from "routing-controllers";
 
 @API("/session")
 export class SessionController {
@@ -31,17 +31,37 @@ export class SessionController {
     }
 
     @Post("/choose_server")
-    public async chooseServer() {
+    public async chooseServer(@CurrentUser() sessionID: string) {
         return {
+            sessionID,
             mock: "choose_server"
         };
     }
 
-    @Get("/heartbeat")
-    public async heartbeat() {
+    @Post("/heartbeat")
+    public async heartbeat(@CurrentUser() sessionID: string) {
         return {
+            sessionID,
             mock: "heartbeat"
-        };
+        }; // mock, todo:
+    }
+
+    @Get("/online_list")
+    @Authorized(["SERVICE", "GM"])
+    public async getOnlineList() {
+        return [
+            "eos::kinghand.x"
+        ];
+    }
+
+    @Get("/online_state/:sessionId")
+    @Authorized(["SERVICE", "GM"])
+    public async getOnlineState(@Param("sessionId") sessionId: string) {
+        return {
+            online: true,
+            validatorIdentity: "eos",
+            userIdentity: "kinghand.x",
+        }; // mock, todo:
     }
 
 }
