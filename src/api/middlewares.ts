@@ -18,6 +18,6 @@ const apply: { [key: string]: () => Koa.Middleware[] } = {
 export const useMiddlewares = (app: Koa, applyGroup: string): Koa => {
     return apply[applyGroup]().reduce((_, m) => {
         _.use(m);
-        return _
+        return _;
     }, app);
 };

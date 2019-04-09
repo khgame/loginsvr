@@ -15,8 +15,7 @@
     "app_key": "KHGame_default_redisKey"
   },
   "validator": {
-    "host": "http://127.0.0.1",
-    "port": 11802,
-    "api": "validate"
+    "host": "http://127.0.0.1:11601",
+    "api": "/validate"
   }
 }

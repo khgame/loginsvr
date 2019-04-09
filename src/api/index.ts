@@ -19,13 +19,6 @@ export class ApiApplication {
     constructor() {
         this.api = new Koa();
         this.server = createServer(this.api.callback());
-        this.init();
-    }
-
-    public start(port: number) {
-        this.api.listen(port, (): void => {
-            console.log(`Koa server has started, running at: http://127.0.0.1:${port}. `);
-        });
     }
 
     private init() {
@@ -52,5 +45,12 @@ export class ApiApplication {
             classTransformer: false,
         });
         useContainer(Container);
+    }
+
+    public start(port: number): Server {
+        this.init();
+        return this.api.listen(port, (): void => {
+            console.log(`Koa server has started, running at: http://127.0.0.1:${port}. `);
+        });
     }
 }

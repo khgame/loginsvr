@@ -4,26 +4,36 @@ import {Body} from "routing-controllers";
 
 @API("/session")
 export class SessionController {
-    constructor(public readonly session : SessionService) {
+    constructor(public readonly session: SessionService) {
     }
 
     @Post("/get_login_token")
-    public async get_login_token(@Body() body: {channel: string, userIdentity: string}) {
+    public async get_login_token(@Body() body: { validatorIdentity: string, userIdentity: string }) {
         console.log(body);
-        return { token: await this.session.createLoginToken(body.channel, body.userIdentity) };
+        return {token: await this.session.createLoginToken(body.validatorIdentity, body.userIdentity)};
     }
 
     @Post("/login")
-    public async login(@Body() body: {channel: string, userIdentity: string, loginToken: string}) {
+    public async login(@Body() body: {
+        validatorIdentity: string,
+        userIdentity: string,
+        loginToken: string,
+        secret: string,
+        algorithm: string
+    }) {
+        return await this.session.login(
+            body.validatorIdentity,
+            body.userIdentity,
+            body.loginToken,
+            body.secret,
+            body.algorithm
+        );
+    }
+
+    @Post("/choose_server")
+    public async chooseServer() {
         return {
-            mock: "login",
-            data: await this.session.login(
-                body.channel,
-                body.userIdentity,
-                body.loginToken,
-                "c",
-                "d"
-            )
+            mock: "choose_server"
         };
     }
 

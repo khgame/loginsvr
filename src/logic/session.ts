@@ -1,6 +1,8 @@
 import {getRedisKey, redis} from "./service/redis";
 import {Service} from "typedi";
 import * as crypto from "crypto";
+import {validate} from "./service/validator";
+import {Global} from "../global";
 
 
 
@@ -15,10 +17,10 @@ export class SessionService {
     }
 
     async createLoginToken(
-        channel: string,
+        validatorIdentity: string,
         userIdentity: string
     ){
-        const combineIdentity = channel + userIdentity;
+        const combineIdentity = validatorIdentity + userIdentity;
         const tokenKey = getRedisKey('session-login-tokens', combineIdentity);
         const md5 = crypto.createHash('md5');
         const loginToken = md5.update(combineIdentity + Math.random()).digest('hex');
@@ -37,19 +39,26 @@ export class SessionService {
     }
 
     async login(
-        channel: string,
+        validatorIdentity: string,
         userIdentity: string,
         loginToken: string,
         secret: string,
         algorithm: string,
         ) {
-        const combineIdentity = channel + userIdentity;
+        const combineIdentity = validatorIdentity + userIdentity;
         const hashKey = getRedisKey('session-login-tokens', combineIdentity);
         const checkHash = await redis().hget(hashKey, loginToken);
+        if (!checkHash) {
+            throw new Error("loginToken are not exist in the hash blobs.");
+        }
+
+        const validateResult = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm)
         return {
-            loginToken,
-            checkHash
+            validator: Global.conf.validator,
+
         };
+
+
     }
 
 }
