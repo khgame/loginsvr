@@ -1,7 +1,7 @@
 import {API, Get, Post} from "../decorators";
 
-@API("/service")
-export class ServiceController {
+@API("/server")
+export class ServerController {
     constructor() {
     }
 
