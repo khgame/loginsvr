@@ -1,3 +1,22 @@
 {
-
+  "port": 11801,
+  "mongo": {
+    "host": "127.0.0.1",
+    "port": 27017,
+    "usr": "",
+    "pwd": "",
+    "db": "khgame_login_svr"
+  },
+  "redis": {
+    "db": 0,
+    "family": 4,
+    "host": "127.0.0.1",
+    "port": 6379,
+    "app_key": "KHGame_default_redisKey"
+  },
+  "validator": {
+    "host": "http://127.0.0.1",
+    "port": 11802,
+    "api": "validate"
+  }
 }
