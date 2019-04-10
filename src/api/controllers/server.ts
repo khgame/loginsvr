@@ -21,7 +21,7 @@ export class ServerController {
             rsp.push(_s);
             _s.identity = identity;
             _s.name = s.name;
-            const value = await redis().hget("server", identity);
+            const value = await redis().hget(getRedisKey("server", "status"), identity);
             if (!value) {
                 _s.Online = false;
                 _s.State = false;
@@ -31,7 +31,7 @@ export class ServerController {
             _s.Online = data.expireTime > Date.now();
             _s.State = data.State;
             _s.version = data.version;
-            
+
         }
         return rsp;
     }
@@ -45,7 +45,7 @@ export class ServerController {
         controllerStatus: string,
         schedulerStatus: string
     }){
-        return redis().hset("server", body.serverIdentity, JSON.stringify({
+        return redis().hset(getRedisKey("server", "status"), body.serverIdentity, JSON.stringify({
             expireTime: Date.now() + 60000,
             version: body.serverVersion,
             State: body.serverState

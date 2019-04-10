@@ -11,6 +11,10 @@ export class SessionService {
 
     static inst: SessionService;
 
+    static getSessionRedisKey(sessionId: string) {
+        return getRedisKey('sessionId', sessionId);
+    }
+
     constructor() {
         SessionService.inst = this;
         console.log("Service: instance created ", SessionService.inst);
@@ -73,15 +77,27 @@ export class SessionService {
 
         const md5 = crypto.createHash('md5');
         const sessionId = md5.update(combineIdentity + Math.random()).digest('hex');
-        const redisKey = getRedisKey('sessionId', sessionId);
-        await redis().set(redisKey, combineIdentity);
-        log.info(`${redisKey}|${sessionId}`);
-        await redis().expire(redisKey, 10 * 60);
 
+        await this.renewalSession(sessionId, combineIdentity);
         return {
             validator: Global.conf.validator,
             sessionId: sessionId
         };
+    }
+
+    async getUserId(sessionId: string){
+        const redisKey = SessionService.getSessionRedisKey(sessionId);
+        const uid = await redis().get(redisKey);
+        if (!uid) {
+            throw new Error(`getUserId failed: sessionId<${sessionId}> dose not exsit`);
+        }
+        return uid;
+    }
+
+    async renewalSession(sessionId: string, uid: string, time: number = 600){
+        const redisKeySession = getRedisKey('sessionId', sessionId);
+        log.info(`renewalSession ${redisKeySession} => ${uid}`);
+        return await redis().set(redisKeySession, uid, "EX", time);
     }
 
 

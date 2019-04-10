@@ -35,11 +35,7 @@ export class SessionController {
 
     @Post("/choose_server")
     public async chooseServer(@CurrentUser() sessionID: string, @Body() body: { serverIdentity: string }) {
-        const redisKey = getRedisKey("sessionId", sessionID);
-        const value = await redis().get(redisKey);
-        if (!value) {
-            throw new Error(`sessionId: ${sessionID} is not exsit`);
-        }
+        const uid = await this.session.getUserId(sessionID);
         let serverInfo : any[] = Global.conf.serverInfo;
         let s = null;
         for (let i = 0; i < serverInfo.length; i++){
@@ -49,14 +45,17 @@ export class SessionController {
             }
         }
         if (!s) { throw new Error(`serverIdentity: ${body.serverIdentity} is not exsit`); }
-        const server_value = await redis().hget("server", body.serverIdentity);
-        if (!server_value) { throw new Error(`server cannot be used`); }
-        const server_data = JSON.parse(server_value);
-        
-        if ((server_data.expireTime < Date.now()) || !server_data.State){
+
+        const server_value = await redis().hget(getRedisKey("server", "status"), body.serverIdentity);
+        if (!server_value) {
             throw new Error(`server cannot be used`);
         }
-        await redis().expire(redisKey, 10 * 60);
+        const serverStatus = JSON.parse(server_value);
+
+        if ((serverStatus.expireTime < Date.now()) || !serverStatus.State){
+            throw new Error(`server cannot be used`);
+        }
+        await this.session.renewalSession(sessionID, uid);
         return {
             url: s.url,
             code: s.code
@@ -64,18 +63,10 @@ export class SessionController {
     }
 
     @Post("/heartbeat")
-    public async heartbeat(@CurrentUser() sessionID: string) {
-        const redisKey = getRedisKey("sessionId", sessionID);
-        const value = await redis().get(redisKey);
-        if (!value) {
-            throw new Error(`sessionId: ${sessionID} is not exsit`);
-        }
-
-        await redis().expire(redisKey, 10 * 60);
-
-        return {
-            sessionID,
-        };
+    public async heartbeat(@CurrentUser() sessionId: string) {
+        const uid = await this.session.getUserId(sessionId);
+        await this.session.renewalSession(sessionId, uid);
+        return { sessionId };
     }
 
     @Get("/online_list")
@@ -94,21 +85,20 @@ export class SessionController {
     @Get("/online_state/:sessionId")
     @Authorized(["SERVICE", "GM"])
     public async getOnlineState(@Param("sessionId") sessionId: string) {
-        const redisKey = getRedisKey("sessionId", sessionId);
-        log.info(redisKey);
-        const value = await redis().get(redisKey);
-        if (!value) {
+        const uid = await this.session.getUserId(sessionId);
+        if (!uid) {
             return {
                 online: false
             };
         }
-        console.log(value);
+        // console.log(uid);
         try{
-            const data = SessionService.getIdentityByString(value);
+            const data = SessionService.getIdentityByString(uid);
             return {
                 online: true,
                 validatorIdentity: data.validatorIdentity,
                 userIdentity: data.userIdentity,
+                uid
             };
         }catch (e){
             return {
