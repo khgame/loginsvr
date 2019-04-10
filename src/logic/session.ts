@@ -19,14 +19,14 @@ export class SessionService {
     static getIdentityString(validatorIdentity: string, userIdentity: string) {
         return `${validatorIdentity}::${userIdentity}`;
     }
-    static getIdentityByString(combineIdentity:string){
-        if(!combineIdentity) throw new Error(`combineIdentity :${combineIdentity} Error`);
+    static getIdentityByString(combineIdentity: string){
+        if (!combineIdentity) { throw new Error(`combineIdentity :${combineIdentity} Error`); }
         const str = combineIdentity.split("::");
-        if(str.length!==2) throw new Error(`combineIdentity :${combineIdentity} Error`);
+        if (str.length !== 2) { throw new Error(`combineIdentity :${combineIdentity} Error`); }
         return {
-            validatorIdentity :str[0],
-            userIdentity :str[1]
-        }
+            validatorIdentity : str[0],
+            userIdentity : str[1]
+        };
     }
 
     async createLoginToken(
@@ -73,14 +73,14 @@ export class SessionService {
 
         const md5 = crypto.createHash('md5');
         const sessionId = md5.update(combineIdentity + Math.random()).digest('hex');
-        const redisKey = getRedisKey('sessionId',sessionId);
-        await redis().set(redisKey,combineIdentity);
-        log.info(`${redisKey}|${sessionId}`)
+        const redisKey = getRedisKey('sessionId', sessionId);
+        await redis().set(redisKey, combineIdentity);
+        log.info(`${redisKey}|${sessionId}`);
         await redis().expire(redisKey, 10 * 60);
 
         return {
             validator: Global.conf.validator,
-            sessionId:sessionId
+            sessionId: sessionId
         };
     }
 

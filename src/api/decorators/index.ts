@@ -1,6 +1,6 @@
 import {JsonController, UseInterceptor} from "routing-controllers";
 import {MessageInterceptor} from "./messageInterceptor";
-export {Get,Body, Post,Param} from "routing-controllers";
+export {Get, Body, Post, Param} from "routing-controllers";
 
 
 function compose(...decs: Function[]) {

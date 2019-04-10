@@ -48,15 +48,15 @@ export class ApiApplication {
             currentUserChecker: async (action: Action) => {
                 const session_id = action.request.headers.session_id;
                 return session_id;
-                //if (session_id) {
-                    //const redisKey = getRedisKey('session', session_id);
-                    //return redisKey;
-                    //const uid = await redis().get(redisKey);
+                // if (session_id) {
+                    // const redisKey = getRedisKey('session', session_id);
+                    // return redisKey;
+                    // const uid = await redis().get(redisKey);
                     // if (uid) {
                     //     await redis().set(redisKey, uid, "EX", 7200);
                     //     return uid;
                     // }
-                //}
+                // }
             },
             authorizationChecker: async (action: Action, roles: string[]) => {
                 return true; // todo: server authority
