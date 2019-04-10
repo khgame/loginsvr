@@ -3,6 +3,7 @@
 
 # build
 dist
+login.development.json
 
 # Logs
 logs
