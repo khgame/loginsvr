@@ -12,7 +12,7 @@
     "family": 4,
     "host": "127.0.0.1",
     "port": 6379,
-    "app_key": "KHGame_default_redisKey"
+    "keyPrefix": "KH_LoginSvr_default_redisKey:"
   },
   "validator": {
     "host": "http://127.0.0.1:11601",
