@@ -4,6 +4,7 @@ import {Global} from "../global";
 import {ApiApplication} from "../api";
 import * as Path from 'path';
 import * as fs from "fs-extra";
+import { log } from "../logger";
 
 async function main() {
     commander.version('0.1.0')
@@ -27,7 +28,7 @@ async function main() {
                 Global.setConf(Path.resolve(__dirname, `../conf.default.json`), false);
             }
 
-            console.log("config path :", Global.confPath);
+            log.info(`config path : ${Global.confPath}`);
             Global.conf.port = (options && options.port) || Global.conf.port || 11801;
             const api = new ApiApplication();
             api.start(Global.conf.port);
@@ -47,9 +48,9 @@ async function main() {
 }
 
 main().then(() => {
-    console.info('running @khgame/loginsvr succeeded.');
+    log.info('running @khgame/loginsvr succeeded.');
 }).catch((reason => {
-    console.error(reason + '\nrunning @khgame/loginsvr failed.');
+    log.error(reason + '\nrunning @khgame/loginsvr failed.');
     process.exit(1);
 }));
 

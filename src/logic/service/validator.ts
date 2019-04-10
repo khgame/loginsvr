@@ -14,7 +14,7 @@ export const validate = async (
         loginToken,
         secret,
         algorithm
-    }).catch(ex => {
+    }).catch((ex: { message: string; }) => {
         throw new Error("validator error => " + ex.message);
     });
 

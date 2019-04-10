@@ -1,5 +1,7 @@
 import {API, Body, Get, Post} from "../decorators";
-import {Authorized} from "routing-controllers";
+import {Authorized, JsonController} from "routing-controllers";
+import { Global } from "../../global";
+import { getRedisKey, redis } from "../../logic/service/redis";
 
 @API("/server")
 export class ServerController {
@@ -9,40 +11,29 @@ export class ServerController {
 
 
     @Get("/list")
-    @Authorized(["SERVICE", "GM"])
     public async list() {
-        return [
-            {
-                serverIdentity: "game01",
-                serverUrl: "https://game01.server.com",
-                serverVersion: "1.0",
-                serverOnline: true,
-                serverState: false,
-                controllerStatus: {
-                    user: true,
-                    activity: true,
-                },
-                schedulerStatus: {
-                    notifier: true,
-                    tradeMQ: true,
-                }
-            },
-            {
-                serverIdentity: "game02",
-                serverUrl: "https://game01.server.com",
-                serverVersion: "1.0",
-                serverOnline: true,
-                controllerStatus: {
-                    user: true,
-                    activity: false,
-                },
-                schedulerStatus: {
-                    notifier: true,
-                    tradeMQ: true,
-                }
+        let serverInfo : any[] = Global.conf.serverInfo;
+        const rsp = [];
+        for(let i = 0;i<serverInfo.length;i++){
+            const s = serverInfo[i];
+            const identity = s.identity;
+            const _s :any= {};
+            rsp.push(_s);
+            _s.identity = identity;
+            _s.name = s.name;
+            const value = await redis().hget("server",identity);
+            if(!value) {
+                _s.Online = false;
+                _s.State = false;
+                continue;
             }
-
-        ]; // mock todo
+            const data = JSON.parse(value);
+            _s.Online = data.expireTime > Date.now();
+            _s.State = data.State;
+            _s.version = data.version;
+            
+        }
+        return rsp;
     }
 
     @Post("/heartbeat")
@@ -54,7 +45,11 @@ export class ServerController {
         controllerStatus: string,
         schedulerStatus: string
     }){
-        // mock todo
+        return redis().hset("server",body.serverIdentity,JSON.stringify({
+            expireTime:Date.now() + 60000,
+            version:body.serverVersion,
+            State:body.serverState
+        }))
     }
 
 }

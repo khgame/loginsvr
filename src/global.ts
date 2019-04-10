@@ -21,6 +21,6 @@ export class Global {
         } catch (e) {
             throw new Error(`parse conf file at path(${path}) failed, content: ${content.toString()}`);
         }
-        this.confPath = path;
+        Global.confPath = path;
     }
 }

@@ -17,5 +17,13 @@
   "validator": {
     "host": "http://127.0.0.1:11601",
     "api": "/validate"
-  }
+  },
+  "serverInfo": [
+    {
+      "identity": "1",
+      "url": "10.1.100.223:6001/api",
+      "code":"crythrones2",
+      "name":"王座争霸"
+    }    
+  ]
 }
