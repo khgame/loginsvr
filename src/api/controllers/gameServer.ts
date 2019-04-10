@@ -4,7 +4,7 @@ import { Global } from "../../global";
 import { getRedisKey, redis } from "../../logic/service/redis";
 import { GameServerService } from "../../logic/gameServer";
 
-@API("/server")
+@API("/game_svr")
 export class GameServerController {
 
     constructor(
@@ -39,16 +39,15 @@ export class GameServerController {
     @Post("/heartbeat")
     @Authorized("SERVICE")
     public async heartbeat(@Body() body: {
-        serverIdentity: string,
-        serverVersion: string,
-        serverState: string,
-        controllerStatus: string,
-        schedulerStatus: string
+        server_identity: string,
+        server_hash: string,
+        server_version: string,
+        server_state: string
     }){
-        return redis().hset(getRedisKey("server", "status"), body.serverIdentity, JSON.stringify({
+        return redis().hset(getRedisKey("server", "status"), body.server_identity, JSON.stringify({
             expireTime: Date.now() + 60000,
-            version: body.serverVersion,
-            State: body.serverState
+            version: body.server_version,
+            state: body.server_state
         }));
     }
 
