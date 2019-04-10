@@ -2,11 +2,14 @@ import {API, Body, Get, Post} from "../decorators";
 import {Authorized, JsonController} from "routing-controllers";
 import { Global } from "../../global";
 import { getRedisKey, redis } from "../../logic/service/redis";
+import { GameServerService } from "../../logic/gameServer";
 
 @API("/server")
-export class ServerController {
+export class GameServerController {
 
-    constructor() {
+    constructor(
+        public serverService: GameServerService
+    ) {
     }
 
 
@@ -15,23 +18,20 @@ export class ServerController {
         let serverInfo : any[] = Global.conf.serverInfo;
         const rsp = [];
         for (let i = 0; i < serverInfo.length; i++){
-            const s = serverInfo[i];
-            const identity = s.identity;
+            const identity = serverInfo[i].identity;
+            const s = await this.serverService.getServerInfo(identity);
             const _s : any = {};
-            rsp.push(_s);
             _s.identity = identity;
-            _s.name = s.name;
-            const value = await redis().hget(getRedisKey("server", "status"), identity);
-            if (!value) {
+            _s.name = s.config.name;
+            if (!s.status) {
                 _s.Online = false;
                 _s.State = false;
-                continue;
+            }else{
+                _s.Online = s.status.expireTime > Date.now();
+                _s.State = s.status.State;
+                _s.version = s.status.version;
             }
-            const data = JSON.parse(value);
-            _s.Online = data.expireTime > Date.now();
-            _s.State = data.State;
-            _s.version = data.version;
-
+            rsp.push(_s);
         }
         return rsp;
     }

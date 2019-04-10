@@ -94,6 +94,17 @@ export class SessionService {
         return uid;
     }
 
+    async getOnlineList(){
+        const redisPattern = getRedisKey("sessionId");
+        const keys = await redis().keys(redisPattern + "*");
+        const redis_get_promise = redis().pipeline();
+        keys.map(k => {
+            redis_get_promise.get(k);
+        });
+        const rsp = await redis_get_promise.exec();
+        return rsp.length === 0 ? [] : rsp.map((e: any) => e[1]);
+    }
+
     async renewalSession(sessionId: string, uid: string, time: number = Global.conf.rules.renewal_time_span){
         const redisKeySession = getRedisKey('sessionId', sessionId);
         log.info(`renewalSession ${redisKeySession} => ${uid}`);

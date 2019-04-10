@@ -41,7 +41,7 @@ async function main() {
             let extractPath = (options && options.path) || './login.development.json';
             extractPath = Path.isAbsolute(extractPath) ? extractPath : Path.resolve(process.cwd(), extractPath);
             fs.copyFileSync(Path.resolve(__dirname, `../conf.default.json`), extractPath);
-            process.exit(0); //1
+            process.exit(0); // 1
         });
 
     commander.parse(process.argv);

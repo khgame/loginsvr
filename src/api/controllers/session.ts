@@ -4,10 +4,13 @@ import { Authorized, CurrentUser, HeaderParam } from "routing-controllers";
 import { log } from "../../logger";
 import { redis, getRedisKey } from "../../logic/service/redis";
 import { Global } from "../../global";
+import { GameServerService } from "../../logic/gameServer";
 
 @API("/session")
 export class SessionController {
-    constructor(public readonly session: SessionService) {
+    constructor(public readonly session: SessionService,
+        public readonly server: GameServerService
+        ) {
     }
 
     @Post("/get_login_token")
@@ -36,29 +39,19 @@ export class SessionController {
     @Post("/choose_server")
     public async chooseServer(@CurrentUser() sessionID: string, @Body() body: { serverIdentity: string }) {
         const uid = await this.session.getUserId(sessionID);
-        let serverInfo : any[] = Global.conf.serverInfo;
-        let s = null;
-        for (let i = 0; i < serverInfo.length; i++){
-            if (serverInfo[i].identity === body.serverIdentity){
-                s = serverInfo[i];
-                continue;
-            }
-        }
-        if (!s) { throw new Error(`serverIdentity: ${body.serverIdentity} is not exsit`); }
-
-        const server_value = await redis().hget(getRedisKey("server", "status"), body.serverIdentity);
-        if (!server_value) {
+        const serverInfo = await this.server.getServerInfo(body.serverIdentity);
+        
+        if (!serverInfo || !serverInfo.status){
             throw new Error(`server cannot be used`);
         }
-        const serverStatus = JSON.parse(server_value);
 
-        if ((serverStatus.expireTime < Date.now()) || !serverStatus.State){
+        if ((serverInfo.status.expireTime < Date.now()) || !serverInfo.status.State){
             throw new Error(`server cannot be used`);
         }
         await this.session.renewalSession(sessionID, uid);
         return {
-            url: s.url,
-            code: s.code
+            url: serverInfo.config.url,
+            code: serverInfo.config.code
         };
     }
 
@@ -72,14 +65,7 @@ export class SessionController {
     @Get("/online_list")
     @Authorized(["SERVICE", "GM"])
     public async getOnlineList() {
-        const redisPattern = getRedisKey("sessionId");
-        const keys = await redis().keys(redisPattern + "*");
-        const redis_get_promise = redis().pipeline();
-        keys.map(k => {
-            redis_get_promise.get(k);
-        });
-        const rsp = await redis_get_promise.exec();
-        return rsp.length === 0 ? [] : rsp.map((e: any) => e[1]);
+        return await this.session.getOnlineList();
     }
 
     @Get("/online_state/:sessionId")
