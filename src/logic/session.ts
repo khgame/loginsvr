@@ -94,7 +94,7 @@ export class SessionService {
         return uid;
     }
 
-    async renewalSession(sessionId: string, uid: string, time: number = 600){
+    async renewalSession(sessionId: string, uid: string, time: number = Global.conf.rules.renewal_time_span){
         const redisKeySession = getRedisKey('sessionId', sessionId);
         log.info(`renewalSession ${redisKeySession} => ${uid}`);
         return await redis().set(redisKeySession, uid, "EX", time);
