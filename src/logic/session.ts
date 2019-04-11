@@ -78,7 +78,7 @@ export class SessionService {
 
         const md5 = crypto.createHash('md5');
         const sessionId = md5.update(combineIdentity + Math.random()).digest('hex');
-        await this.createUserIfNotExist(combineIdentity);
+        await this.setUserLastLoginTime(combineIdentity);
         await this.renewalSession(sessionId, combineIdentity);
         return {
             validator: Global.conf.validator,
@@ -112,13 +112,13 @@ export class SessionService {
         return await redis().set(redisKeySession, uid, "EX", time);
     }
 
-    async createUserIfNotExist(uid:string){
-        const user = await UserInfoModel.findById(uid);
+    async setUserLastLoginTime(uid:string){
+        const user = await UserInfoModel.findOneAndUpdate({_id:uid},{$set:{login_time:new Date()}});
         if(!user){
             try{
-                await UserInfoModel.create({_id:uid});
+                await UserInfoModel.create({_id:uid,login_time:new Date()});
             }catch(e){
-
+                await UserInfoModel.findOneAndUpdate({_id:uid},{$set:{login_time:new Date()}});
             }
         }
     }
