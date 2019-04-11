@@ -21,6 +21,7 @@
   "rules": {
     "renewal_time_span": 600
   },
+  "mongodb_url":"mongodb://10.1.100.223:27017/ct",
   "serverInfo": [
     {
       "identity": "1",

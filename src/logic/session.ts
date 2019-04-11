@@ -4,6 +4,7 @@ import * as crypto from "crypto";
 import {validate} from "./service/validator";
 import {Global} from "../global";
 import { log } from "../logger";
+import { UserInfoModel } from "../model/userInfo";
 
 
 @Service()
@@ -77,7 +78,7 @@ export class SessionService {
 
         const md5 = crypto.createHash('md5');
         const sessionId = md5.update(combineIdentity + Math.random()).digest('hex');
-
+        await this.createUserIfNotExist(combineIdentity);
         await this.renewalSession(sessionId, combineIdentity);
         return {
             validator: Global.conf.validator,
@@ -111,5 +112,14 @@ export class SessionService {
         return await redis().set(redisKeySession, uid, "EX", time);
     }
 
+    async createUserIfNotExist(uid:string){
+        const user = await UserInfoModel.findById(uid);
+        if(!user){
+            try{
+                await UserInfoModel.create({_id:uid});
+            }catch(e){
 
+            }
+        }
+    }
 }
