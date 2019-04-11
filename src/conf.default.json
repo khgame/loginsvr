@@ -3,9 +3,9 @@
   "mongo": {
     "host": "127.0.0.1",
     "port": 27017,
-    "usr": "",
-    "pwd": "",
-    "db": "khgame_login_svr"
+    "username": "",
+    "password": "",
+    "database": "khgame_login_svr"
   },
   "redis": {
     "db": 0,
@@ -21,7 +21,6 @@
   "rules": {
     "renewal_time_span": 600
   },
-  "mongodb_url":"mongodb://10.1.100.223:27017/ct",
   "serverInfo": [
     {
       "identity": "1",

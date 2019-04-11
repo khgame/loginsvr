@@ -2,11 +2,19 @@ import * as fs from "fs-extra";
 import * as Path from 'path';
 
 export class Global {
-    static conf: any;
+    static get conf() {
+        if(!Global._conf) {
+            throw new Error("read config error: config are not set.");
+        }
+        return Global._conf;
+    }
+
+    private static _conf: any;
+
     static confPath: any;
 
     static setConf(path: string, force: boolean) {
-        if (!force && Global.conf) {
+        if (!force && Global._conf) {
             return;
         }
 
@@ -17,7 +25,7 @@ export class Global {
 
         let content = fs.readFileSync(path);
         try {
-            Global.conf = JSON.parse(content.toString());
+            Global._conf = JSON.parse(content.toString());
         } catch (e) {
             throw new Error(`parse conf file at path(${path}) failed, content: ${content.toString()}`);
         }
