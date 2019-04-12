@@ -2,7 +2,6 @@ import { Service } from "typedi";
 import { Global } from "../global";
 import { redis, getRedisKey } from "./service/redis";
 
-
 @Service()
 export class GameServerService {
     static inst: GameServerService;

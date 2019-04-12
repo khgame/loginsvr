@@ -1,9 +1,9 @@
-import { getRedisKey, redis,validate } from "./service";
-import { Service } from "typedi";
+import {getRedisKey, redis, validate} from "./service";
+import {Service} from "typedi";
 import * as crypto from "crypto";
-import { Global } from "../global";
-import { log } from "./service/logger";
-import { UserInfoModel } from "./model/userInfo";
+import {Global} from "../global";
+import {log} from "./service/logger";
+import {UserInfoModel} from "./model/userInfo";
 import {http} from "./service/rpc";
 
 @Service()
@@ -23,10 +23,15 @@ export class SessionService {
     static getIdentityString(validatorIdentity: string, userIdentity: string) {
         return `${validatorIdentity}::${userIdentity}`;
     }
+
     static getIdentityByString(combineIdentity: string) {
-        if (!combineIdentity) { throw new Error(`combineIdentity :${combineIdentity} Error`); }
+        if (!combineIdentity) {
+            throw new Error(`combineIdentity :${combineIdentity} Error`);
+        }
         const str = combineIdentity.split("::");
-        if (str.length !== 2) { throw new Error(`combineIdentity :${combineIdentity} Error`); }
+        if (str.length !== 2) {
+            throw new Error(`combineIdentity :${combineIdentity} Error`);
+        }
         return {
             validatorIdentity: str[0],
             userIdentity: str[1]
@@ -72,7 +77,7 @@ export class SessionService {
         const validateRsp = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm);
 
         if (!validateRsp.result) {
-            return { result: false };
+            return {result: false};
         }
 
         const md5 = crypto.createHash('md5');
@@ -113,26 +118,32 @@ export class SessionService {
         return await redis().set(redisKeySession, uid, "EX", time);
     }
 
-    async refreshUserInfo(sessionId:string,identity:string){
+    async refreshUserInfo(sessionId: string, identity: string) {
         const uid = await this.getUserId(sessionId);
         let serverInfo: any[] = Global.conf.serverInfo;
         for (let i = 0; i < serverInfo.length; i++) {
             const curIdentity = serverInfo[i].identity;
-            if(curIdentity!== identity) continue;
+            if (curIdentity !== identity) {
+                continue;
+            }
             const userInfo = await UserInfoModel.findById(uid);
-            if(!userInfo) return;
-            //判断是否存在该玩家
-            for(let i = 0;i<userInfo.serverInfo.length;i++){
-                const s = userInfo.serverInfo[i];
-                if(s.server_identity === identity) return;
+            if (!userInfo) {
+                return;
+            }
+            // 判断是否存在该玩家
+            for (let sInd = 0; sInd < userInfo.serverInfo.length; sInd++) {
+                const s = userInfo.serverInfo[sInd];
+                if (s.server_identity === identity) {
+                    return;
+                }
             }
             const url = serverInfo[i].url;
             try {
                 let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
                 const data = rsp.data.result;
-                console.log(rsp)
-                if(data){
-                    await UserInfoModel.findOneAndUpdate({_id:uid},{$push:{serverInfo:{server_identity:identity}}});
+                console.log(rsp);
+                if (data) {
+                    await UserInfoModel.findOneAndUpdate({_id: uid}, {$push: {serverInfo: {server_identity: identity}}});
                 }
             } catch (e) {
                 console.log(e);
@@ -142,13 +153,15 @@ export class SessionService {
     }
 
     async setUserLastLoginTime(uid: string) {
-        const user = await UserInfoModel.findOneAndUpdate({ _id: uid }, { $set: { login_time: new Date() } });
-        if (user) { return false; }
+        const user = await UserInfoModel.findOneAndUpdate({_id: uid}, {$set: {login_time: new Date()}});
+        if (user) {
+            return false;
+        }
         try {
-            await UserInfoModel.create({ _id: uid, login_time: new Date() });
+            await UserInfoModel.create({_id: uid, login_time: new Date()});
             return true;
         } catch (e) {
-            await UserInfoModel.findOneAndUpdate({ _id: uid }, { $set: { login_time: new Date() } });
+            await UserInfoModel.findOneAndUpdate({_id: uid}, {$set: {login_time: new Date()}});
         }
         return false;
     }
@@ -162,7 +175,7 @@ export class SessionService {
             try {
                 let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
                 const data = rsp.data.result;
-                console.log(rsp)
+                console.log(rsp);
                 if (data) {
                     userServerInfo.push({
                         server_identity: identity,
@@ -172,8 +185,9 @@ export class SessionService {
                 console.log(e);
             }
         }
-        await UserInfoModel.updateOne({_id:uid},{$set:{serverInfo:userServerInfo}})
+        await UserInfoModel.updateOne({_id: uid}, {$set: {serverInfo: userServerInfo}});
     }
+
     async refreshUserServerInfo(uid: string, identity: string) {
 
     }

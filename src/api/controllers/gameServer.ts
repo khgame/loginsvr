@@ -63,7 +63,7 @@ export class GameServerController {
             expire_time: Date.now() + 60000,
             state: body.server_state,
             user_count: body.server_user_count
-        }
+        };
         await redis().hset(getRedisKey("server", "status"), body.server_identity, JSON.stringify(data));
         return data;
     }

@@ -4,7 +4,7 @@ import { Document, Schema } from "mongoose";
 export interface IUserInfoDocument extends Document {
     _id: string;
     login_time: Date;
-    serverInfo: [{server_identity:string}];
+    serverInfo: [{server_identity: string}];
 }
 
 const UserInfoSchema = new Schema({

@@ -48,7 +48,7 @@ export class SessionController {
             throw new Error(`server cannot be used`);
         }
         await this.session.renewalSession(sessionID, uid);
-        await this.session.refreshUserInfo(sessionID,body.serverIdentity)
+        await this.session.refreshUserInfo(sessionID, body.serverIdentity);
         return serverInfo.config;
     }
 
