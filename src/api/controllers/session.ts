@@ -40,20 +40,16 @@ export class SessionController {
     public async chooseServer(@CurrentUser() sessionID: string, @Body() body: { serverIdentity: string }) {
         const uid = await this.session.getUserId(sessionID);
         const serverInfo = await this.server.getServerInfo(body.serverIdentity);
-        console.log(serverInfo);
         if (!serverInfo || !serverInfo.status){
             throw new Error(`server cannot be used`);
         }
 
-        if ((serverInfo.status.expireTime < Date.now()) || !serverInfo.status.state){
+        if ((serverInfo.status.expire_time < Date.now()) || !serverInfo.status.state){
             throw new Error(`server cannot be used`);
         }
         await this.session.renewalSession(sessionID, uid);
         await this.session.refreshUserInfo(sessionID,body.serverIdentity)
-        return {
-            url: serverInfo.config.url,
-            code: serverInfo.config.code
-        };
+        return serverInfo.config;
     }
 
     @Post("/heartbeat")

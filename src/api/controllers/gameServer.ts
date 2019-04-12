@@ -31,21 +31,21 @@ export class GameServerController {
         }
         for (let i = 0; i < serverInfo.length; i++) {
             const identity = serverInfo[i].identity;
-            const s = await this.serverService.getServerInfo(identity);
-            const _s: any = {};
-            _s.identity = identity;
-            _s.name = s.config.name;
-            if (!s.status) {
-                _s.Online = false;
-                _s.State = false;
+            const curServer = await this.serverService.getServerInfo(identity);
+            const curRsp: any = {};
+            curRsp.identity = identity;
+            curRsp.name = curServer.config.name;
+            if (!curServer.status) {
+                curRsp.Online = false;
+                curRsp.State = false;
             } else {
-                _s.Online = s.status.expireTime > Date.now();
-                _s.State = s.status.State;
-                _s.version = s.status.version;
-                _s.person_num = s.status.user_count;
-                _s.isActive = myServer[identity] ? true : false;
+                curRsp.online = curServer.status.expire_time > Date.now();
+                curRsp.state = curServer.status.state;
+                curRsp.version = curServer.status.version;
+                curRsp.person_num = curServer.status.user_count;
+                curRsp.is_active = myServer[identity] ? true : false;
             }
-            rsp.push(_s);
+            rsp.push(curRsp);
         }
         return rsp;
     }
@@ -59,11 +59,13 @@ export class GameServerController {
         server_state: string,
         server_user_count: number
     }) {
-        return redis().hset(getRedisKey("server", "status"), body.server_identity, JSON.stringify({
-            expireTime: Date.now() + 60000,
+        const data = {
+            expire_time: Date.now() + 60000,
             state: body.server_state,
             user_count: body.server_user_count
-        }));
+        }
+        await redis().hset(getRedisKey("server", "status"), body.server_identity, JSON.stringify(data));
+        return data;
     }
 
 }
