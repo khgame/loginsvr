@@ -1,20 +1,24 @@
 {
-  "name": "loginsvr",
+  "name": "@khgame/loginsvr",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "kh-loginsvr": "dist/app/index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc && cp ./src/conf.default.json dist",
+    "build": "rimraf ./dist && npx tsc && cp ./src/conf.default.json dist",
     "lint": "npx tslint --fix --project .",
     "app": "npx ts-node ./src/app",
-    "watch": "cross-env nodemon --inspect --watch 'src/**/*' -e ts,tsx --exec 'node -r ts-node/register' ./src/app start"
+    "watch": "cross-env nodemon --inspect --watch 'src/**/*' -e ts,tsx --exec 'node -r ts-node/register' ./src/app start",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/khgame/loginsvr.git"
   },
-  "author": "kinghand@foxmail.com",
+  "author": "bagaking(kinghand@foxmail.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/khgame/loginsvr/issues"
@@ -47,8 +51,12 @@
     "@types/mongoose": "^5.3.17",
     "cross-env": "^5.2.0",
     "nodemon": "^1.18.10",
+    "rimraf": "^2.6.3",
     "ts-node": "^8.0.3",
     "tslint": "^5.15.0",
     "typescript": "^3.4.2"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

@@ -1,5 +1,6 @@
+#!/usr/bin/env node
+
 import * as commander from "commander";
-import * as Redis from "ioredis";
 import {Global} from "../global";
 import {ApiApplication} from "../api";
 import * as Path from 'path';

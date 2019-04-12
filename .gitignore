@@ -2,6 +2,7 @@
 .idea
 
 # build
+bin
 dist
 login.development.json
 

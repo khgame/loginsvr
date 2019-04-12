@@ -1,26 +1,30 @@
 {
-   "compilerOptions": {
-       "baseUrl": ".",
-       "paths": {
-           "*": ["types/*"]
-       },
-       "module": "commonjs",
-       "target": "es2015",
-       "noImplicitAny": true,
-       "skipLibCheck": true,
-       "removeComments": true,
-       "preserveConstEnums": true,
-       "outDir": "dist",
-       "sourceMap": true,
-       "strict": true,
-       "emitDecoratorMetadata": true,
-       "experimentalDecorators": true
-   },
-   "include": [
-       "src/**/*"
-   ],
-   "exclude": [
-       "node_modules",
-       "**/*.spec.ts"
-   ]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "types/*"
+      ]
+    },
+    "module": "commonjs",
+    "target": "es2015",
+
+    "declaration": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "strict": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
