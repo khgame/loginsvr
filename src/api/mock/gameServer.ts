@@ -17,36 +17,7 @@ export class GameServerMock {
 
 
     @Get("/list")
-    public async list(@CurrentUser() sessionId: string) {
-        let serverInfo: any[] = Global.conf.serverInfo;
-        const rsp = [];
-        const uid = await this.sessionService.getUserId(sessionId);
-        const userInfo = await UserInfoModel.findById(uid);
-        const myServer: any = {};
-        if (userInfo && userInfo.serverInfo) {
-            for (let i = 0; i < userInfo.serverInfo.length; i++) {
-                const s = userInfo.serverInfo[i];
-                myServer[s.server_identity] = 1;
-            }
-        }
-        for (let i = 0; i < serverInfo.length; i++) {
-            const identity = serverInfo[i].identity;
-            const s = await this.serverService.getServerInfo(identity);
-            const _s: any = {};
-            _s.identity = identity;
-            _s.name = s.config.name;
-            if (!s.status) {
-                _s.Online = false;
-                _s.State = false;
-            } else {
-                _s.Online = s.status.expireTime > Date.now();
-                _s.State = s.status.State;
-                _s.version = s.status.version;
-                _s.person_num = s.status.user_count;
-                _s.isActive = myServer[identity] ? true : false;
-            }
-            rsp.push(_s);
-        }
+    public async list() {
         return [ {
             identity: "mock-server-identity",
             name: "mock-server-name",

@@ -32,7 +32,7 @@ async function main() {
                 Global.setConf(Path.resolve(__dirname, `../conf.default.json`), false);
             }
 
-            log.info(`mock : ${options.mock} config path : ${Global.confPath}`);
+            log.info(`mock : ${options.mock} , config path : ${Global.confPath}`);
             Global.conf.port = (options && options.port) || Global.conf.port || 11801;
             const api = new ApiApplication(options.mock);
             await initServices();
