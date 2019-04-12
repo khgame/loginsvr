@@ -22,7 +22,7 @@
   "homepage": "https://github.com/khgame/loginsvr#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "eos-sign-validator": "^0.1.3",
+    "eos-sign-validator": "^0.1.7",
     "fs-extra": "^7.0.1",
     "ioredis": "^4.9.0",
     "kcors": "^2.2.2",

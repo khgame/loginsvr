@@ -3,7 +3,7 @@ import * as Path from 'path';
 
 export class Global {
     static get conf() {
-        if(!Global._conf) {
+        if (!Global._conf) {
             throw new Error("read config error: config are not set.");
         }
         return Global._conf;
