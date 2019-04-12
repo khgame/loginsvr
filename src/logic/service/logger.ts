@@ -14,6 +14,7 @@ function ensureLogDir(folder?: string): string {
     }
     return logDir;
 }
+
 const mainTransport = new DailyRotateFile({
     level: "info",
     filename: `${ensureLogDir()}/%DATE%-main.log`,

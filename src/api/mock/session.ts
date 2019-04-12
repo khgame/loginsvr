@@ -1,7 +1,7 @@
 import { API, Get, Post, Body, Param } from "../decorators";
 import { SessionService } from "../../logic/session";
 import { Authorized, CurrentUser, HeaderParam } from "routing-controllers";
-import { log } from "../../logger";
+import { log } from "../../logic/service/logger";
 import { redis, getRedisKey } from "../../logic/service/redis";
 import { Global } from "../../global";
 import { GameServerService } from "../../logic/gameServer";

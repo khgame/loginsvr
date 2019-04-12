@@ -4,7 +4,7 @@ import {Global} from "../global";
 import {ApiApplication} from "../api";
 import * as Path from 'path';
 import * as fs from "fs-extra";
-import { log } from "../logger";
+import { log } from "../logic/service/logger";
 import {initServices} from "../logic/service";
 
 async function main() {

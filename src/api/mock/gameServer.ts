@@ -4,7 +4,7 @@ import { Global } from "../../global";
 import { getRedisKey, redis } from "../../logic/service/redis";
 import { GameServerService } from "../../logic/gameServer";
 import { SessionService } from "../../logic/session";
-import { UserInfoModel } from "../../model/userInfo";
+import { UserInfoModel } from "../../logic/model/userInfo";
 
 @API("/game_svr")
 export class GameServerMock {
