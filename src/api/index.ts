@@ -2,13 +2,13 @@ import * as Koa from "koa";
 import "reflect-metadata";
 
 import {Action, useContainer, useKoaServer} from "routing-controllers";
-import { Container } from "typedi";
+import {Container} from "typedi";
 
 import * as controllers from "./controllers/index";
+import * as mockControllers from "./mock/index";
 
-import { useMiddlewares } from "./middlewares";
-import { createServer, Server } from "http";
-import {getRedisKey, redis} from "../logic/service/redis";
+import {useMiddlewares} from "./middlewares";
+import {createServer, Server} from "http";
 
 const objectToArray = (dict: any): any[] =>
     Object.keys(dict).map((name) => dict[name]);
@@ -17,7 +17,7 @@ export class ApiApplication {
     private api: Koa;
     private server: Server;
 
-    constructor() {
+    constructor(public readonly mock: boolean = false) {
         this.api = new Koa();
         this.server = createServer(this.api.callback());
     }
@@ -43,19 +43,19 @@ export class ApiApplication {
             cors: true,
             routePrefix: "/v1",
             validation: true,
-            controllers: objectToArray(controllers),
+            controllers: objectToArray(this.mock ? mockControllers : controllers),
             classTransformer: false,
             currentUserChecker: async (action: Action) => {
                 const session_id = action.request.headers.session_id;
                 return session_id;
                 // if (session_id) {
-                    // const redisKey = getRedisKey('session', session_id);
-                    // return redisKey;
-                    // const uid = await redis().get(redisKey);
-                    // if (uid) {
-                    //     await redis().set(redisKey, uid, "EX", 7200);
-                    //     return uid;
-                    // }
+                // const redisKey = getRedisKey('session', session_id);
+                // return redisKey;
+                // const uid = await redis().get(redisKey);
+                // if (uid) {
+                //     await redis().set(redisKey, uid, "EX", 7200);
+                //     return uid;
+                // }
                 // }
             },
             authorizationChecker: async (action: Action, roles: string[]) => {

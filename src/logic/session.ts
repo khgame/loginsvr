@@ -84,7 +84,6 @@ export class SessionService {
         }
         await this.renewalSession(sessionId, combineIdentity);
         return {
-            validator: Global.conf.validator,
             sessionId: sessionId
         };
     }

@@ -22,6 +22,9 @@ async function main() {
             path => Global.setConf(path, true))
         .option('-P, --port <port>',
             'the port to serve api, will override the setting in config file, 11801 by default')
+        .option('-m, --mock',
+            'start with mock mode',
+            false)
         .action(async (options) => {
             try {
                 Global.setConf(Path.resolve(process.cwd(), `./login.${process.env.NODE_ENV || "development"}.json`), false);
@@ -29,9 +32,9 @@ async function main() {
                 Global.setConf(Path.resolve(__dirname, `../conf.default.json`), false);
             }
 
-            log.info(`config path : ${Global.confPath}`);
+            log.info(`mock : ${options.mock} config path : ${Global.confPath}`);
             Global.conf.port = (options && options.port) || Global.conf.port || 11801;
-            const api = new ApiApplication();
+            const api = new ApiApplication(options.mock);
             await initServices();
             api.start(Global.conf.port);
         });
