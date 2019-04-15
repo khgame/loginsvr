@@ -11,8 +11,21 @@ describe(`validate owner_id`, async function () {
     process.env.NODE_ENV = "production";
     Global.setConf(Path.resolve(__dirname, `../src/conf.default.json`), false);
 
+    let validatorProcess: ChildProcess;
     before(async () => {
         await initServices();
+        console.log("=> start login server mock");
+        validatorProcess = exec("npx kh-loginsvr start -m", function (err) {
+            console.log('child exit code (exec)', err!.code);
+        });
+        await forMs(1000);
+        console.log("=> start test");
+    });
+
+    after((done) => {
+        validatorProcess.kill();
+        console.log("=> end login server mock");
+        done();
     });
 
     let token;
