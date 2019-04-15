@@ -88,6 +88,7 @@ export class SessionService {
         }
         await this.renewalSession(sessionId, combineIdentity);
         return {
+            result: true,
             sessionId: sessionId
         };
     }

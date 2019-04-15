@@ -15,7 +15,7 @@ describe(`validate owner_id`, async function () {
     before(async () => {
         await initServices();
         console.log("=> start login server mock");
-        validatorProcess = exec("npx kh-loginsvr start -m", function (err) {
+        validatorProcess = exec("npx mockSignValidator start -m", function (err) {
             console.log('child exit code (exec)', err!.code);
         });
         await forMs(1000);
@@ -28,7 +28,7 @@ describe(`validate owner_id`, async function () {
         done();
     });
 
-    let token;
+    let token: string;
 
     it('1. /v1/session/get_login_token: login procedure', function (done) {
         createReq().get(`/v1/session/get_login_token`)
@@ -41,7 +41,7 @@ describe(`validate owner_id`, async function () {
     it('2. /v1/session/get_login_token: login procedure', function (done) {
         createReq().post(`/v1/session/get_login_token`)
             .set('Accept', 'application/json')
-            .send({ validatorIdentity: "eos", userIdentity: "thetestuser1" })
+            .send({ validatorIdentity: "mock", userIdentity: "test_user" })
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, res) {
@@ -53,6 +53,84 @@ describe(`validate owner_id`, async function () {
 
                 assert.ok(result.token);
                 token = result.token;
+                console.log("token set:", token);
+                done();
+            });
+    });
+
+    it('3. /v1/session/login: login with wrong validatorIdentity', function (done) {
+        createReq().post(`/v1/session/login`)
+            .set('Accept', 'application/json')
+            .send({
+                validatorIdentity: "wrong" + Math.random(),
+                userIdentity: "test_user",
+                loginToken: token,
+                secret: token + "_sign",
+                algorithm: ""
+            })
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('4. /v1/session/login: login with wrong userIdentity', function (done) {
+        createReq().post(`/v1/session/login`)
+            .set('Accept', 'application/json')
+            .send({
+                validatorIdentity: "mock",
+                userIdentity: "wrong_user" + Math.random(),
+                loginToken: token,
+                secret: token + "_sign",
+                algorithm: ""
+            })
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('5. /v1/session/login: login when validate failed', function (done) {
+        createReq().post(`/v1/session/login`)
+            .set('Accept', 'application/json')
+            .send({
+                validatorIdentity: "mock",
+                userIdentity: "test_user",
+                loginToken: token,
+                secret: "b",
+                algorithm: ""
+            })
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    console.log(res.body);
+                    return done(err);
+                }
+                let result = res.body.result;
+                assert.ok(!result.result);
+                done();
+            });
+    });
+
+    it('6. /v1/session/login: login when validate passed', function (done) {
+        createReq().post(`/v1/session/login`)
+            .set('Accept', 'application/json')
+            .send({
+                validatorIdentity: "mock",
+                userIdentity: "test_user",
+                loginToken: token,
+                secret: token + "_sign",
+                algorithm: ""
+            })
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    console.log(res.body);
+                    return done(err);
+                }
+                let result = res.body.result;
+                // console.log("res.body:", res.body);
+                assert.ok(result.result);
                 done();
             });
     });
