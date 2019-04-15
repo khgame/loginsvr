@@ -15,11 +15,13 @@ const objectToArray = (dict: any): any[] =>
 
 export class ApiApplication {
     private api: Koa;
-    private server: Server;
+    public server: Server;
 
     constructor(public readonly mock: boolean = false) {
         this.api = new Koa();
         this.server = createServer(this.api.callback());
+
+        this.init();
     }
 
     private init() {
@@ -67,7 +69,6 @@ export class ApiApplication {
     }
 
     public start(port: number): Server {
-        this.init();
         return this.api.listen(port, (): void => {
             console.log(`Koa server has started, running at: http://127.0.0.1:${port}. `);
         });
