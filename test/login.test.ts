@@ -129,8 +129,9 @@ describe(`validate owner_id`, async function () {
                     return done(err);
                 }
                 let result = res.body.result;
-                // console.log("res.body:", res.body);
+                console.log("res.body:", res.body);
                 assert.ok(result.result);
+                assert.ok(result.sessionId);
                 done();
             });
     });
