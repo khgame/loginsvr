@@ -32,6 +32,23 @@ describe(`validate owner_id`, async function () {
 
     let token: string;
 
+    it('0. /v1/core/validator: check validator info', function (done) {
+        createReq().get(`/v1/core/validator`)
+            .set('Accept', 'application/json')
+            .send({})
+            .expect('Content-Type', /json/)
+            .expect(200) // Method not allowed
+            .end(function (err, res) {
+                if (err) {
+                    console.log(res.body);
+                    return done(err);
+                }
+                let result = res.body.result;
+                assert.ok(result);
+                done();
+            });
+    });
+
     it('1. /v1/session/get_login_token: login procedure', function (done) {
         createReq().get(`/v1/session/get_login_token`)
             .set('Accept', 'application/json')
@@ -55,7 +72,7 @@ describe(`validate owner_id`, async function () {
 
                 assert.ok(result.token);
                 token = result.token;
-                console.log("token set:", token);
+                console.log("=> token set:", token);
                 done();
             });
     });
