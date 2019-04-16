@@ -110,7 +110,7 @@ describe(`validate owner_id`, async function () {
                 done();
             });
     });
-
+    let session_id:string;
     it('6. /v1/session/login: login when validate passed', function (done) {
         this.timeout(10000);
         createReq().post(`/v1/session/login`)
@@ -131,9 +131,149 @@ describe(`validate owner_id`, async function () {
                 }
                 let result = res.body.result;
                 // console.log("res.body:", res.body);
+                session_id = result.sessionId;
                 assert.ok(result.result);
                 assert.ok(result.sessionId);
                 done();
             });
+    });
+
+    it('7. /v1/game_svr/list: get list wrong session_id', function (done) {
+        this.timeout(10000);
+        createReq().get(`/v1/game_svr/list`)
+            .set('Accept', 'application/json')
+            .set("session_id","mock")
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('8. /v1/game_svr/list: get list passed', function (done) {
+        this.timeout(10000);
+        createReq().get(`/v1/game_svr/list`)
+            .set('Accept', 'application/json')
+            .set("session_id",session_id)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    console.log(res.body);
+                    return done(err);
+                }
+                let result = res.body.result;
+                console.log("res.body:", result);
+                done();
+            });
+    });
+
+    it('9. /v1/game_svr/server_list: get server_list passed', function (done) {
+        this.timeout(10000);
+        createReq().get(`/v1/game_svr/server_list`)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(done);
+    });
+
+    it('10. /v1/game_svr/heartbeat: server heartbeat wrong server_identity', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/game_svr/heartbeat`)
+            .set('Accept', 'application/json')
+            .send({server_identity:"222",server_state:"1"})
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('11. /v1/game_svr/heartbeat: server heartbeat passed', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/game_svr/heartbeat`)
+            .set('Accept', 'application/json')
+            .send({server_identity:"1",server_state:"1"})
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(done);
+    });
+
+    it('12. /v1/session/choose_server: choose_server wrong session_id', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/session/choose_server`)
+            .set('Accept', 'application/json')
+            .set("session_id","mock222")
+            .send({server_identity:"1"})
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('13. /v1/session/choose_server: choose_server wrong server_identity', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/session/choose_server`)
+            .set('Accept', 'application/json')
+            .set("session_id",session_id)
+            .send({server_identity:"11"})
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('14. /v1/session/choose_server: choose_server wrong state server_identity', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/session/choose_server`)
+            .set('Accept', 'application/json')
+            .set("session_id",session_id)
+            .send({server_identity:"2"})
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('15. /v1/session/choose_server: choose_server passed', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/session/choose_server`)
+            .set('Accept', 'application/json')
+            .set("session_id",session_id)
+            .send({serverIdentity:"1"})
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(done);
+    });
+
+    it('16. /v1/session/heartbeat: session heartbeat wrong session_id', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/session/heartbeat`)
+            .set('Accept', 'application/json')
+            .set("session_id","mock")
+            .expect('Content-Type', /json/)
+            .expect(500)
+            .end(done);
+    });
+
+    it('17. /v1/session/heartbeat: session heartbeat passed', function (done) {
+        this.timeout(10000);
+        createReq().post(`/v1/session/heartbeat`)
+            .set('Accept', 'application/json')
+            .set("session_id",session_id)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(done);
+    });
+
+    it('18. /v1/session/online_list: online_list passed', function (done) {
+        this.timeout(10000);
+        createReq().get(`/v1/session/online_list`)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(done);
+    });
+
+    it('19. /v1/session/online_state: online_list passed', function (done) {
+        this.timeout(10000);
+        createReq().get(`/v1/session/online_state/${session_id}`)
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end(done);
     });
 });

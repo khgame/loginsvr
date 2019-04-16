@@ -64,6 +64,15 @@ export class GameServerController {
         server_state: string,
         server_user_count: number
     }) {
+        const serverInfo = Global.conf.serverInfo;
+        let exsit = false;
+        for(let i = 0;i<serverInfo.length;i++){
+            if(serverInfo[i].identity === body.server_identity){
+                exsit = true;
+                break;
+            }
+        }
+        if(!exsit) throw new Error(`server_identity:${body.server_identity} is not exsit`);
         const data = {
             expire_time: Date.now() + 60000,
             state: body.server_state,

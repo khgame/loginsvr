@@ -29,6 +29,11 @@ export class GameServerMock {
         } ];
     }
 
+    @Get("/server_list")
+    public async serverList() {
+        return  Global.conf.serverInfo;
+    }
+
     @Post("/heartbeat")
     @Authorized("SERVICE")
     public async heartbeat(@Body() body: {
