@@ -3,7 +3,7 @@ import * as Path from "path";
 import {Global} from "../src/global";
 
 import {spawn, exec, ChildProcess} from 'child_process';
-import {getValidatorInfo, initServices, waitForValidatorAlive} from "../src/logic/service";
+import {getValidatorInfo, initServices, validate, waitForValidatorAlive} from "../src/logic/service";
 import {forMs} from "kht";
 import {createReq} from "./createReq";
 import {forCondition} from "kht";
@@ -13,7 +13,7 @@ describe(`validate owner_id`, async function () {
     Global.setConf(Path.resolve(__dirname, `../src/conf.default.json`), false);
 
     let validatorProcess: ChildProcess;
-    before(async function() {
+    before(async function () {
         this.timeout(10000);
         await initServices();
         console.log("=> start login server mock", Date.now());
@@ -32,7 +32,7 @@ describe(`validate owner_id`, async function () {
 
     let token: string;
 
-    it('0. /v1/core/validator: check validator info', function (done) {
+    it('0.1. /v1/core/validator: check validator info', function (done) {
         createReq().get(`/v1/core/validator`)
             .set('Accept', 'application/json')
             .send({})
@@ -40,13 +40,23 @@ describe(`validate owner_id`, async function () {
             .expect(200) // Method not allowed
             .end(function (err, res) {
                 if (err) {
-                    console.log(res.body);
+                    console.log("error", res.body);
                     return done(err);
                 }
                 let result = res.body.result;
                 assert.ok(result);
                 done();
             });
+    });
+
+    it('0.2. /v1/core/validator: validate', function (done) {
+        validate("mock", "user", token, token + "_sign", "").then(res => {
+            assert.ok(res.result);
+            done();
+        }).catch(err => {
+            console.log("error", err);
+            done(err);
+        });
     });
 
     it('1. /v1/session/get_login_token: login procedure', function (done) {
@@ -65,7 +75,7 @@ describe(`validate owner_id`, async function () {
             .expect(200)
             .end(function (err, res) {
                 if (err) {
-                    console.log(res.body);
+                    console.log("error", res.body);
                     return done(err);
                 }
                 let result = res.body.result;
@@ -121,7 +131,7 @@ describe(`validate owner_id`, async function () {
             .expect(200)
             .end(function (err, res) {
                 if (err) {
-                    console.log(res.body);
+                    console.log("error", res.body);
                     return done(err);
                 }
                 let result = res.body.result;
@@ -145,7 +155,7 @@ describe(`validate owner_id`, async function () {
             .expect(200)
             .end(function (err, res) {
                 if (err) {
-                    console.log(res.body);
+                    console.log("error", res.body);
                     return done(err);
                 }
                 let result = res.body.result;
@@ -176,7 +186,7 @@ describe(`validate owner_id`, async function () {
             .expect(200)
             .end(function (err, res) {
                 if (err) {
-                    console.log(res.body);
+                    console.log("error", res.body);
                     return done(err);
                 }
                 let result = res.body.result;
