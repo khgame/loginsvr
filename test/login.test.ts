@@ -153,7 +153,9 @@ describe(`validate owner_id`, async function () {
                 session_id = result.sessionId;
                 assert.ok(result.result);
                 assert.ok(result.sessionId);
+                console.log("=> session_id set:", result.sessionId);
                 done();
+                console.log(Date.now());
             });
     });
 

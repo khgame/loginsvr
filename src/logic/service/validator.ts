@@ -25,7 +25,7 @@ export const validate = async (
     loginToken: string,
     secret: string,
     algorithm: string) => {
-    console.log("req");
+    // console.log("req");
     const rsp = await http.post(`${Global.conf.validator.host}${Global.conf.validator.api}`, {
         validatorIdentity,
         userIdentity,
