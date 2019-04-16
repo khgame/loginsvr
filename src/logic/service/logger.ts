@@ -45,3 +45,26 @@ export const log = createLogger({
         mainTransport,
     ],
 });
+
+
+export const genLogger = (prefix: string) => createLogger({
+    // change level if in dev environment versus production
+    level: (!process.env.NODE_ENV || process.env.NODE_ENV === "development") ? "debug" : "info",
+    format: format.combine(
+        format.timestamp({
+            format: "YYYY-MM-DD HH:mm:ss.SSS",
+        }),
+        // format.printf(info => `[${info.timestamp}] [${info.level}]: ${info.message}`)
+    ),
+    transports: [
+        new transports.Console({
+            level: (!process.env.NODE_ENV || process.env.NODE_ENV === "development") ? "verbose" : "info",
+            format: format.combine(
+                format.colorize(),
+                format.printf((info) =>
+                    `[${info.timestamp}] [${info.level}] ${prefix ? "[" + prefix + "]" : ""}: ${info.message}`),
+            ),
+        }),
+        mainTransport,
+    ],
+});
