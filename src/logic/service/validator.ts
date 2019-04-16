@@ -1,5 +1,23 @@
 import {Global} from "../../global";
 import {http} from "./rpc";
+import {forCondition} from "kht";
+
+export const waitForValidatorAlive = async () => {
+    return await forCondition(async () => {
+        try {
+            return (await getValidatorInfo()).status === 200;
+        }catch (e) {
+            return false;
+        }
+    });
+}
+
+export const getValidatorInfo = async () => {
+    const rsp = await http.get(`${Global.conf.validator.host}${"/info"}`).catch((ex: { message: string; }) => {
+        throw new Error("validator error => " + ex.message);
+    });
+    return rsp;
+};
 
 export const validate = async (
     validatorIdentity: string,
