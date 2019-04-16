@@ -1,10 +1,10 @@
-import { API, Body, Get, Post } from "../decorators";
-import { Authorized, JsonController, CurrentUser } from "routing-controllers";
-import { Global } from "../../global";
-import { getRedisKey, redis } from "../../logic/service/redis";
-import { GameServerService } from "../../logic/gameServer";
-import { SessionService } from "../../logic/session";
-import { UserInfoModel } from "../../logic/model/userInfo";
+import {API, Body, Get, Post} from "../decorators";
+import {Authorized, JsonController, CurrentUser} from "routing-controllers";
+import {Global} from "../../global";
+import {getRedisKey, redis} from "../../logic/service/redis";
+import {GameServerService} from "../../logic/gameServer";
+import {SessionService} from "../../logic/session";
+import {UserInfoModel} from "../../logic/model/userInfo";
 
 @API("/game_svr")
 export class GameServerController {
@@ -52,7 +52,7 @@ export class GameServerController {
 
     @Get("/server_list")
     public async serverList() {
-        return  Global.conf.serverInfo;
+        return Global.conf.serverInfo;
     }
 
     @Post("/heartbeat")
@@ -66,13 +66,13 @@ export class GameServerController {
     }) {
         const serverInfo = Global.conf.serverInfo;
         let exsit = false;
-        for(let i = 0;i<serverInfo.length;i++){
-            if(serverInfo[i].identity === body.server_identity){
+        for (let i = 0; i < serverInfo.length; i++) {
+            if (serverInfo[i].identity === body.server_identity) {
                 exsit = true;
                 break;
             }
         }
-        if(!exsit) throw new Error(`server_identity:${body.server_identity} is not exsit`);
+        if (!exsit) throw new Error(`server_identity:${body.server_identity} is not exsit`);
         const data = {
             expire_time: Date.now() + 60000,
             state: body.server_state,

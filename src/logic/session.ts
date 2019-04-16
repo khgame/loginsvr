@@ -142,12 +142,12 @@ export class SessionService {
             try {
                 let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
                 const data = rsp.data.result;
-                console.log(rsp);
+                log.verbose(rsp);
                 if (data) {
                     await UserInfoModel.findOneAndUpdate({_id: uid}, {$push: {serverInfo: {server_identity: identity}}});
                 }
             } catch (e) {
-                console.log(e);
+                log.error(e);
             }
             return;
         }
