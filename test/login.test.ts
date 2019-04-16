@@ -3,23 +3,25 @@ import * as Path from "path";
 import {Global} from "../src/global";
 
 import {spawn, exec, ChildProcess} from 'child_process';
-import {initServices} from "../src/logic/service";
+import {getValidatorInfo, initServices, waitForValidatorAlive} from "../src/logic/service";
 import {forMs} from "kht";
 import {createReq} from "./createReq";
+import {forCondition} from "kht";
 
 describe(`validate owner_id`, async function () {
     process.env.NODE_ENV = "production";
     Global.setConf(Path.resolve(__dirname, `../src/conf.default.json`), false);
 
     let validatorProcess: ChildProcess;
-    before(async () => {
+    before(async function() {
+        this.timeout(10000);
         await initServices();
-        console.log("=> start login server mock");
+        console.log("=> start login server mock", Date.now());
         validatorProcess = exec("npx mockSignValidator start -m", function (err) {
             console.log('child exit code (exec)', err!.code);
         });
-        await forMs(1000);
-        console.log("=> start test");
+        await waitForValidatorAlive();
+        console.log("=> start test", Date.now());
     });
 
     after((done) => {
@@ -33,7 +35,7 @@ describe(`validate owner_id`, async function () {
     it('1. /v1/session/get_login_token: login procedure', function (done) {
         createReq().get(`/v1/session/get_login_token`)
             .set('Accept', 'application/json')
-            .send({ validatorIdentity: "eos", userIdentity: "thetestuser1" })
+            .send({validatorIdentity: "eos", userIdentity: "thetestuser1"})
             .expect(405) // Method not allowed
             .end(done);
     });
@@ -41,7 +43,7 @@ describe(`validate owner_id`, async function () {
     it('2. /v1/session/get_login_token: login procedure', function (done) {
         createReq().post(`/v1/session/get_login_token`)
             .set('Accept', 'application/json')
-            .send({ validatorIdentity: "mock", userIdentity: "test_user" })
+            .send({validatorIdentity: "mock", userIdentity: "test_user"})
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, res) {
@@ -110,9 +112,9 @@ describe(`validate owner_id`, async function () {
                 done();
             });
     });
-    let session_id:string;
+
+    let session_id: string;
     it('6. /v1/session/login: login when validate passed', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/login`)
             .set('Accept', 'application/json')
             .send({
@@ -139,20 +141,18 @@ describe(`validate owner_id`, async function () {
     });
 
     it('7. /v1/game_svr/list: get list wrong session_id', function (done) {
-        this.timeout(10000);
         createReq().get(`/v1/game_svr/list`)
             .set('Accept', 'application/json')
-            .set("session_id","mock")
+            .set("session_id", "mock")
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
     });
 
     it('8. /v1/game_svr/list: get list passed', function (done) {
-        this.timeout(10000);
         createReq().get(`/v1/game_svr/list`)
             .set('Accept', 'application/json')
-            .set("session_id",session_id)
+            .set("session_id", session_id)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(function (err, res) {
@@ -161,13 +161,12 @@ describe(`validate owner_id`, async function () {
                     return done(err);
                 }
                 let result = res.body.result;
-                console.log("res.body:", result);
+                // console.log("res.body:", result);
                 done();
             });
     });
 
     it('9. /v1/game_svr/server_list: get server_list passed', function (done) {
-        this.timeout(10000);
         createReq().get(`/v1/game_svr/server_list`)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
@@ -176,91 +175,82 @@ describe(`validate owner_id`, async function () {
     });
 
     it('10. /v1/game_svr/heartbeat: server heartbeat wrong server_identity', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/game_svr/heartbeat`)
             .set('Accept', 'application/json')
-            .send({server_identity:"222",server_state:"1"})
+            .send({server_identity: "222", server_state: "1"})
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
     });
 
     it('11. /v1/game_svr/heartbeat: server heartbeat passed', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/game_svr/heartbeat`)
             .set('Accept', 'application/json')
-            .send({server_identity:"1",server_state:"1"})
+            .send({server_identity: "1", server_state: "1"})
             .expect('Content-Type', /json/)
             .expect(200)
             .end(done);
     });
 
     it('12. /v1/session/choose_server: choose_server wrong session_id', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/choose_server`)
             .set('Accept', 'application/json')
-            .set("session_id","mock222")
-            .send({server_identity:"1"})
+            .set("session_id", "mock222")
+            .send({server_identity: "1"})
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
     });
 
     it('13. /v1/session/choose_server: choose_server wrong server_identity', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/choose_server`)
             .set('Accept', 'application/json')
-            .set("session_id",session_id)
-            .send({server_identity:"11"})
+            .set("session_id", session_id)
+            .send({server_identity: "11"})
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
     });
 
     it('14. /v1/session/choose_server: choose_server wrong state server_identity', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/choose_server`)
             .set('Accept', 'application/json')
-            .set("session_id",session_id)
-            .send({server_identity:"2"})
+            .set("session_id", session_id)
+            .send({server_identity: "2"})
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
     });
 
     it('15. /v1/session/choose_server: choose_server passed', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/choose_server`)
             .set('Accept', 'application/json')
-            .set("session_id",session_id)
-            .send({serverIdentity:"1"})
+            .set("session_id", session_id)
+            .send({serverIdentity: "1"})
             .expect('Content-Type', /json/)
             .expect(200)
             .end(done);
     });
 
     it('16. /v1/session/heartbeat: session heartbeat wrong session_id', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/heartbeat`)
             .set('Accept', 'application/json')
-            .set("session_id","mock")
+            .set("session_id", "mock")
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
     });
 
     it('17. /v1/session/heartbeat: session heartbeat passed', function (done) {
-        this.timeout(10000);
         createReq().post(`/v1/session/heartbeat`)
             .set('Accept', 'application/json')
-            .set("session_id",session_id)
+            .set("session_id", session_id)
             .expect('Content-Type', /json/)
             .expect(200)
             .end(done);
     });
 
     it('18. /v1/session/online_list: online_list passed', function (done) {
-        this.timeout(10000);
         createReq().get(`/v1/session/online_list`)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
@@ -269,7 +259,6 @@ describe(`validate owner_id`, async function () {
     });
 
     it('19. /v1/session/online_state: online_list passed', function (done) {
-        this.timeout(10000);
         createReq().get(`/v1/session/online_state/${session_id}`)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)

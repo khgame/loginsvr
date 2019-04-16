@@ -26,11 +26,10 @@
   "homepage": "https://github.com/khgame/loginsvr#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "eos-sign-validator": "^0.1.7",
     "fs-extra": "^7.0.1",
     "ioredis": "^4.9.0",
     "kcors": "^2.2.2",
-    "kht": "^0.0.8",
+    "kht": "^0.0.9",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-logger": "^3.2.0",
