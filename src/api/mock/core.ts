@@ -10,7 +10,7 @@ export class ServerController {
     @Get("/info")
     public async info() {
         return {
-            version: "0.1.0",
+            version: "0.1.2",
         }; // mock todo
     }
 
