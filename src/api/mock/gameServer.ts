@@ -26,6 +26,30 @@ export class GameServerMock {
             version: 'mock-server-version',
             person_num: '100',
             isActive: true
+        }, {
+            identity: "mock-server-identity-1",
+            name: "mock-server-name",
+            Online: true,
+            State: true,
+            version: 'mock-server-version',
+            person_num: '100',
+            isActive: true
+        }, {
+            identity: "mock-server-identity-2",
+            name: "mock-server-name",
+            Online: true,
+            State: true,
+            version: 'mock-server-version',
+            person_num: '100',
+            isActive: true
+        }, {
+            identity: "mock-server-identity-3",
+            name: "mock-server-name",
+            Online: true,
+            State: true,
+            version: 'mock-server-version',
+            person_num: '100',
+            isActive: true
         } ];
     }
 
