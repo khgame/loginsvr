@@ -1,13 +1,14 @@
-import {getRedisKey, redis, validate} from "./service";
+import {genLogger, getRedisKey, redis, validate} from "./service";
 import {Service} from "typedi";
 import * as crypto from "crypto";
 import {Global} from "../global";
-import {log} from "./service/logger";
 import {UserInfoModel} from "./model/userInfo";
 import {http} from "./service/rpc";
 
 @Service()
 export class SessionService {
+
+    log = genLogger('s:session');
 
     static inst: SessionService;
 
@@ -17,7 +18,7 @@ export class SessionService {
 
     constructor() {
         SessionService.inst = this;
-        console.log("Service: instance created ", SessionService.inst);
+        this.log.verbose("Service: instance created ");
     }
 
     static getIdentityString(validatorIdentity: string, userIdentity: string) {
@@ -115,7 +116,7 @@ export class SessionService {
 
     async renewalSession(sessionId: string, uid: string, time: number = Global.conf.rules.renewal_time_span) {
         const redisKeySession = getRedisKey('sessionId', sessionId);
-        log.info(`renewalSession ${redisKeySession} => ${uid}`);
+        this.log.info(`renewalSession ${redisKeySession} => ${uid}`);
         return await redis().set(redisKeySession, uid, "EX", time);
     }
 
@@ -142,12 +143,12 @@ export class SessionService {
             try {
                 let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
                 const data = rsp.data.result;
-                log.verbose(rsp);
+                this.log.verbose(rsp);
                 if (data) {
                     await UserInfoModel.findOneAndUpdate({_id: uid}, {$push: {serverInfo: {server_identity: identity}}});
                 }
             } catch (e) {
-                log.error(e);
+                this.log.error(e);
             }
             return;
         }

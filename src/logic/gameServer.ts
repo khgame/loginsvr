@@ -1,14 +1,16 @@
 import { Service } from "typedi";
 import { Global } from "../global";
-import { redis, getRedisKey } from "./service/redis";
+import {redis, getRedisKey, genLogger} from "./service";
 
 @Service()
 export class GameServerService {
     static inst: GameServerService;
 
+    log = genLogger('s:game');
+
     constructor() {
         GameServerService.inst = this;
-        console.log("Service: instance created ", GameServerService.inst);
+        this.log.verbose("Service: instance created ");
     }
 
     async getServerInfo(identity: string) {

@@ -1,14 +1,14 @@
 import { API, Get, Post, Body, Param } from "../decorators";
 import { SessionService } from "../../logic/session";
-import { Authorized, CurrentUser, HeaderParam } from "routing-controllers";
-import { log } from "../../logic/service/logger";
-import { redis, getRedisKey } from "../../logic/service/redis";
-import { Global } from "../../global";
+import { Authorized, CurrentUser } from "routing-controllers";
 import { GameServerService } from "../../logic/gameServer";
-import {GameServerMock} from "./gameServer";
+import {genLogger} from "../../logic/service";
 
 @API("/session")
 export class SessionMock {
+
+    log = genLogger('api:session:mock');
+
     constructor(public readonly session: SessionService,
         public readonly server: GameServerService
         ) {

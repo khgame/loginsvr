@@ -1,13 +1,14 @@
 import { API, Get, Post, Body, Param } from "../decorators";
 import { SessionService } from "../../logic/session";
-import { Authorized, CurrentUser, HeaderParam } from "routing-controllers";
-import { log } from "../../logic/service/logger";
-import { redis, getRedisKey } from "../../logic/service/redis";
-import { Global } from "../../global";
+import { Authorized, CurrentUser } from "routing-controllers";
+import {genLogger} from "../../logic/service";
 import { GameServerService } from "../../logic/gameServer";
 
 @API("/session")
 export class SessionController {
+
+    log = genLogger('api:session');
+
     constructor(public readonly session: SessionService,
         public readonly server: GameServerService
         ) {
@@ -15,7 +16,7 @@ export class SessionController {
 
     @Post("/get_login_token")
     public async get_login_token(@Body() body: { validatorIdentity: string, userIdentity: string }) {
-        log.info(`SessionController|get_login_token  ${JSON.stringify(body)}`);
+        this.log.info(`SessionController|get_login_token  ${JSON.stringify(body)}`);
         return { token: await this.session.createLoginToken(body.validatorIdentity, body.userIdentity) };
     }
 
@@ -74,7 +75,7 @@ export class SessionController {
                 online: false
             };
         }
-        console.log(uid);
+        this.log.debug(uid);
         try{
             const data = SessionService.getIdentityByString(uid);
             return {

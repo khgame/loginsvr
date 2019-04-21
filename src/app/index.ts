@@ -5,7 +5,6 @@ import {Global} from "../global";
 import {ApiApplication} from "../api";
 import * as Path from 'path';
 import * as fs from "fs-extra";
-import { log } from "../logic/service/logger";
 import {initServices} from "../logic/service";
 
 async function main() {
@@ -33,7 +32,7 @@ async function main() {
                 Global.setConf(Path.resolve(__dirname, `../conf.default.json`), false);
             }
 
-            log.info(`mock : ${options.mock} , config path : ${Global.confPath}`);
+            console.log(`mock : ${options.mock} , config path : ${Global.confPath}`);
             Global.conf.port = (options && options.port) || Global.conf.port || 11801;
             const api = new ApiApplication(options.mock);
             await initServices();
@@ -54,9 +53,9 @@ async function main() {
 }
 
 main().then(() => {
-    log.info('running @khgame/loginsvr succeeded.');
+    console.log('running @khgame/loginsvr succeeded.');
 }).catch((reason => {
-    log.error(reason + '\nrunning @khgame/loginsvr failed.');
+    console.error(reason + '\nrunning @khgame/loginsvr failed.');
     process.exit(1);
 }));
 
