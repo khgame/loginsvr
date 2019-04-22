@@ -142,6 +142,7 @@ describe(`validate owner_id`, async function () {
 
     let session_id: string;
     it('6. /v1/session/login: login when validate passed', function (done) {
+        this.timeout(10000);
         createReq().post(`/v1/session/login`)
             .set('Accept', 'application/json')
             .send({

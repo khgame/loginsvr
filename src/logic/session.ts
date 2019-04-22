@@ -74,9 +74,9 @@ export class SessionService {
         if (!checkHash) {
             throw new Error("loginToken are not exist in the hash blobs.");
         }
-
+        console.log("start validator",Date.now())
         const validateRsp = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm);
-
+        console.log("end validator",Date.now())
         if (!validateRsp.result) {
             return {result: false};
         }
