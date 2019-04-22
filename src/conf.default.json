@@ -23,5 +23,17 @@
     "renewal_time_span": 600
   },
   "serverInfo": [
+    {
+      "identity": "1",
+      "url": "http://10.1.100.223:8001/api/",
+      "code":"crpthrones2",
+      "name":"王座争霸"
+    },
+    {
+      "identity": "4",
+      "url": "http://10.1.100.240:8001/api/",
+      "code":"crpthrones3",
+      "name":"萌萌"
+    }
   ]
 }

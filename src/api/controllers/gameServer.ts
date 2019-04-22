@@ -72,7 +72,7 @@ export class GameServerController {
                 break;
             }
         }
-        if (!exsit) throw new Error(`server_identity:${body.server_identity} is not exsit`);
+        if (!exsit) { throw new Error(`server_identity:${body.server_identity} is not exsit`); }
         const data = {
             expire_time: Date.now() + 60000,
             state: body.server_state,

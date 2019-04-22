@@ -1862,8 +1862,8 @@ keygrip@~1.0.3:
 
 kht@^0.0.9:
   version "0.0.9"
-  resolved "http://registry.npm.taobao.org/kht/download/kht-0.0.9.tgz?cache=0&other_urls=http%3A%2F%2Fregistry.npm.taobao.org%2Fkht%2Fdownload%2Fkht-0.0.9.tgz#ce33b5f4a1b10bb02d9deae8b6cf0ed864c346d3"
-  integrity sha1-zjO19KGxC7Atnerots8O2GTDRtM=
+  resolved "https://registry.yarnpkg.com/kht/-/kht-0.0.9.tgz#ce33b5f4a1b10bb02d9deae8b6cf0ed864c346d3"
+  integrity sha512-Mr4O4opPEGm6bo/CCDwAYrawyBviWdj6p+hZYjji6QusqNSbrNrbtk4wVWQGt/OrfJu4APUqfri6NRsKe0MIxg==
   dependencies:
     "@babel/runtime" "^7.3.1"
     child_process "^1.0.2"

@@ -10,7 +10,7 @@ export const waitForValidatorAlive = async () => {
             return false;
         }
     });
-}
+};
 
 export const getValidatorInfo = async () => {
     const rsp = await http.get(`${Global.conf.validator.host}${"/info"}`).catch((ex: { message: string; }) => {

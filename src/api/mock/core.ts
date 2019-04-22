@@ -16,7 +16,7 @@ export class ServerController {
 
     @Get("/validator")
     public async validator() {
-        const validatorInfoRsp = await getValidatorInfo()
+        const validatorInfoRsp = await getValidatorInfo();
         if (validatorInfoRsp.status !== 200) {
             return false;
         }
