@@ -30,6 +30,15 @@ describe(`validate owner_id`, async function () {
         done();
     });
 
+    Global.conf.serverInfo = [
+        {
+          "identity": "mock",
+          "url": "http://10.1.100.223:8001/api/",
+          "code":"crpthrones2",
+          "name":"王座争霸"
+        },
+      ]
+
     let token: string;
 
     it('0.1. /v1/core/validator: check validator info', function (done) {
@@ -216,7 +225,7 @@ describe(`validate owner_id`, async function () {
     it('11. /v1/game_svr/heartbeat: server heartbeat passed', function (done) {
         createReq().post(`/v1/game_svr/heartbeat`)
             .set('Accept', 'application/json')
-            .send({server_identity: "1", server_state: "1"})
+            .send({server_identity: "mock", server_state: "1"})
             .expect('Content-Type', /json/)
             .expect(200)
             .end(done);
@@ -226,7 +235,7 @@ describe(`validate owner_id`, async function () {
         createReq().post(`/v1/session/choose_server`)
             .set('Accept', 'application/json')
             .set("session_id", "mock222")
-            .send({server_identity: "1"})
+            .send({server_identity: "mock"})
             .expect('Content-Type', /json/)
             .expect(500)
             .end(done);
@@ -256,7 +265,7 @@ describe(`validate owner_id`, async function () {
         createReq().post(`/v1/session/choose_server`)
             .set('Accept', 'application/json')
             .set("session_id", session_id)
-            .send({serverIdentity: "1"})
+            .send({serverIdentity: "mock"})
             .expect('Content-Type', /json/)
             .expect(200)
             .end(done);

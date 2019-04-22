@@ -125,7 +125,7 @@ export class SessionService {
         let serverInfo: any[] = Global.conf.serverInfo;
         for (let i = 0; i < serverInfo.length; i++) {
             const curIdentity = serverInfo[i].identity;
-            if (curIdentity !== identity) {
+            if (curIdentity !== identity || identity === "mock") {
                 continue;
             }
             const userInfo = await UserInfoModel.findById(uid);
@@ -173,7 +173,9 @@ export class SessionService {
         let userServerInfo = [];
         for (let i = 0; i < serverInfo.length; i++) {
             const identity = serverInfo[i].identity;
+            if(identity === "mock") continue;
             const url = serverInfo[i].url;
+            console.log(`${url}getUserBriefInfo/${uid}`)
             try {
                 let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
                 const data = rsp.data.result;
