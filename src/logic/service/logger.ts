@@ -47,7 +47,7 @@ export const genLogger = (label: string = "") => {
                 format: format.combine(
                     format.colorize(),
                     format.printf((info) =>
-                        `[${info.timestamp}] [${info.level}] [${info.lebel}]: ${info.message}`),
+                        `[${info.timestamp}] [${info.level}] [${info.label}]: ${info.message}`),
                 ),
             }),
             createFileTransport(label),
