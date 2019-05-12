@@ -6,6 +6,7 @@ import {ApiApplication} from "../api";
 import * as Path from 'path';
 import * as fs from "fs-extra";
 import {initServices} from "../logic/service";
+import * as getPort from "get-port";
 
 async function main() {
     commander.version('0.1.0')
@@ -28,12 +29,18 @@ async function main() {
         .action(async (options) => {
             try {
                 Global.setConf(Path.resolve(process.cwd(), `./login.${process.env.NODE_ENV || "development"}.json`), false);
-            }catch (e) {
+            } catch (e) {
                 Global.setConf(Path.resolve(__dirname, `../conf.default.json`), false);
             }
 
             console.log(`mock : ${options.mock} , config path : ${Global.confPath}`);
-            Global.conf.port = (options && options.port) || Global.conf.port || 11801;
+            const port = (options && options.port) || Global.conf.port || 11801;
+            Global.conf.port = port;
+            const availablePort = await getPort({port});
+            if (availablePort !== port) {
+                console.error(`port ${port} are occupied by another progress. ${availablePort} can be used by the way.`);
+                return;
+            }
             const api = new ApiApplication(options.mock);
             await initServices();
             api.start(Global.conf.port);

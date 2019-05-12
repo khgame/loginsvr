@@ -96,6 +96,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/get-port@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.npm.taobao.org/@types/get-port/download/@types/get-port-4.2.0.tgz#4fc44616c737d37d3ee7926d86fa975d0afba5e4"
+  integrity sha1-T8RGFsc3030+55JthvqXXQr7peQ=
+  dependencies:
+    get-port "*"
+
 "@types/http-assert@*":
   version "1.4.0"
   resolved "http://registry.npm.taobao.org/@types/http-assert/download/@types/http-assert-1.4.0.tgz#41d173466e396e99a14d75f7160cc997f2f9ed8b"
@@ -105,6 +112,13 @@
   version "4.0.10"
   resolved "http://registry.npm.taobao.org/@types/ioredis/download/@types/ioredis-4.0.10.tgz#ca8bd95ca7d5fee32cbc5a0bf92fc29264bee237"
   integrity sha1-yovZXKfV/uMsvFoL+S/CkmS+4jc=
+  dependencies:
+    "@types/node" "*"
+
+"@types/ip@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npm.taobao.org/@types/ip/download/@types/ip-1.1.0.tgz#aec4f5bfd49e4a4c53b590d88c36eb078827a7c0"
+  integrity sha1-rsT1v9SeSkxTtZDYjDbrB4gnp8A=
   dependencies:
     "@types/node" "*"
 
@@ -1319,6 +1333,13 @@ get-func-name@^2.0.0:
   resolved "http://registry.npm.taobao.org/get-func-name/download/get-func-name-2.0.0.tgz#ead774abee72e20409433a066366023dd6887a41"
   integrity sha1-6td0q+5y4gQJQzoGY2YCPdaIekE=
 
+get-port@*, get-port@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npm.taobao.org/get-port/download/get-port-5.0.0.tgz#aa22b6b86fd926dd7884de3e23332c9f70c031a6"
+  integrity sha1-qiK2uG/ZJt14hN4+IzMsn3DAMaY=
+  dependencies:
+    type-fest "^0.3.0"
+
 get-stream@^3.0.0:
   version "3.0.0"
   resolved "http://registry.npm.taobao.org/get-stream/download/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
@@ -1583,6 +1604,11 @@ ioredis@^4.9.0:
     redis-errors "^1.2.0"
     redis-parser "^3.0.0"
     standard-as-callback "^2.0.1"
+
+ip@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.npm.taobao.org/ip/download/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
+  integrity sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=
 
 is-accessor-descriptor@^0.1.6:
   version "0.1.6"
@@ -3477,6 +3503,11 @@ type-detect@^4.0.0, type-detect@^4.0.5:
   version "4.0.8"
   resolved "http://registry.npm.taobao.org/type-detect/download/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
   integrity sha1-dkb7XxiHHPu3dJ5pvTmmOI63RQw=
+
+type-fest@^0.3.0:
+  version "0.3.1"
+  resolved "https://registry.npm.taobao.org/type-fest/download/type-fest-0.3.1.tgz#63d00d204e059474fe5e1b7c011112bbd1dc29e1"
+  integrity sha1-Y9ANIE4FlHT+Xht8ARESu9HcKeE=
 
 type-is@^1.6.16:
   version "1.6.16"

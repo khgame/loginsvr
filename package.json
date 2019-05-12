@@ -12,6 +12,7 @@
     "lint": "npx tslint --fix --project .",
     "app": "npx ts-node ./src/app",
     "watch": "cross-env nodemon --inspect --watch 'src/**/*' -e ts,tsx --exec 'node -r ts-node/register' ./src/app start",
+    "start": "npm run build && node ./dist/app start",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -27,7 +28,9 @@
   "dependencies": {
     "axios": "^0.18.0",
     "fs-extra": "^7.0.1",
+    "get-port": "^5.0.0",
     "ioredis": "^4.9.0",
+    "ip": "^1.1.5",
     "kcors": "^2.2.2",
     "kht": "^0.0.9",
     "koa": "^2.7.0",
@@ -47,7 +50,9 @@
     "@khgame/mock-sign-validator": "^0.1.1",
     "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.5",
+    "@types/get-port": "^4.2.0",
     "@types/ioredis": "^4.0.10",
+    "@types/ip": "^1.1.0",
     "@types/koa": "^2.0.48",
     "@types/koa-bodyparser": "^4.2.2",
     "@types/koa-logger": "^3.1.1",

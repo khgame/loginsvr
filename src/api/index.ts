@@ -9,6 +9,7 @@ import * as mockControllers from "./mock/index";
 
 import {useMiddlewares} from "./middlewares";
 import {createServer, Server} from "http";
+import * as ip from "ip";
 
 const objectToArray = (dict: any): any[] =>
     Object.keys(dict).map((name) => dict[name]);
@@ -70,7 +71,7 @@ export class ApiApplication {
 
     public start(port: number): Server {
         return this.api.listen(port, (): void => {
-            console.log(`Koa server has started, running at: http://127.0.0.1:${port}. `);
+            console.log(`Koa server has started, running at: http://${ip.address()}:${port}. `);
         });
     }
 }
