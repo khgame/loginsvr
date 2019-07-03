@@ -8,11 +8,11 @@
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts --exit",
-    "build": "rimraf ./dist && npx tsc && cp ./src/conf.default.json dist",
+    "build": "rimraf ./dist && npx tsc",
     "lint": "npx tslint --fix --project .",
-    "app": "npx ts-node ./src/app",
-    "watch": "cross-env nodemon --inspect --watch 'src/**/*' -e ts,tsx --exec 'node -r ts-node/register' ./src/app start",
-    "start": "npm run build && node ./dist/app start",
+    "app": "npx ts-node ./src",
+    "watch": "cross-env nodemon --inspect --watch 'src/**/*' -e ts,tsx --exec 'node -r ts-node/register' ./src/index.js start",
+    "start": "npm run build && node ./dist start",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/khgame/loginsvr#readme",
   "dependencies": {
+    "@khgame/turtle": "^0.0.39",
     "axios": "^0.18.0",
     "fs-extra": "^7.0.1",
     "get-port": "^5.0.0",

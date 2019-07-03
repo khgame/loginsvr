@@ -1,16 +1,14 @@
-import { API, Get, Post, Body, Param } from "../decorators";
-import { SessionService } from "../../logic/session";
+import { API, Get, Post, Body, Param } from "./decorators";
+import { SessionService } from "../logic/session";
 import { Authorized, CurrentUser } from "routing-controllers";
-import {genLogger} from "../../logic/service";
-import { GameServerService } from "../../logic/gameServer";
+import {genLogger} from "@khgame/turtle/lib";
 
 @API("/session")
 export class SessionController {
 
-    log = genLogger('api:session');
+    log = genLogger('api.bak:session');
 
-    constructor(public readonly session: SessionService,
-        public readonly server: GameServerService
+    constructor(public readonly session: SessionService
         ) {
     }
 
@@ -37,21 +35,21 @@ export class SessionController {
         );
     }
 
-    @Post("/choose_server")
-    public async chooseServer(@CurrentUser() sessionID: string, @Body() body: { serverIdentity: string }) {
-        const uid = await this.session.getUserId(sessionID);
-        const serverInfo = await this.server.getServerInfo(body.serverIdentity);
-        if (!serverInfo || !serverInfo.status){
-            throw new Error(`server cannot be used`);
-        }
-
-        if ((serverInfo.status.expire_time < Date.now()) || !serverInfo.status.state){
-            throw new Error(`server cannot be used`);
-        }
-        await this.session.renewalSession(sessionID, uid);
-        await this.session.refreshUserInfo(sessionID, body.serverIdentity);
-        return serverInfo.config;
-    }
+    // @Post("/choose_server")
+    // public async chooseServer(@CurrentUser() sessionID: string, @Body() body: { serverIdentity: string }) {
+    //     const uid = await this.session.getUserId(sessionID);
+    //     const serverInfo = await this.server.getServerInfo(body.serverIdentity);
+    //     if (!serverInfo || !serverInfo.status){
+    //         throw new Error(`server cannot be used`);
+    //     }
+    //
+    //     if ((serverInfo.status.expire_time < Date.now()) || !serverInfo.status.state){
+    //         throw new Error(`server cannot be used`);
+    //     }
+    //     await this.session.renewalSession(sessionID, uid);
+    //     await this.session.refreshUserInfo(sessionID, body.serverIdentity);
+    //     return serverInfo.config;
+    // }
 
     @Post("/heartbeat")
     public async heartbeat(@CurrentUser() sessionId: string) {

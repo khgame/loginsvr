@@ -85,7 +85,7 @@ example: config fir serverInfo
 ```json
 {
     "identity": "4",
-    "url": "http://10.1.100.240:8001/api/",
+    "url": api.bak,
     "code":"crpthrones3",
     "name":"萌萌"
 }

@@ -1,9 +1,7 @@
-import {genLogger, getRedisKey, redis, validate} from "./service";
 import {Service} from "typedi";
 import * as crypto from "crypto";
-import {Global} from "../global";
 import {UserInfoModel} from "./model/userInfo";
-import {http} from "./service/rpc";
+import {genLogger, getRedisKey, RedisDriver, turtle} from "@khgame/turtle/lib";
 
 @Service()
 export class SessionService {
@@ -47,13 +45,13 @@ export class SessionService {
         const tokenKey = getRedisKey('session-login-tokens', combineIdentity);
         const md5 = crypto.createHash('md5');
         const loginToken = md5.update(combineIdentity + Math.random()).digest('hex');
-        await redis().hset(tokenKey, loginToken, Date.now() + 1000 * 60 * 10);
-        await redis().expire(tokenKey, 10 * 60);
-        redis().hgetall(tokenKey, function (err: any, reply: any) {
+        await RedisDriver.inst.hset(tokenKey, loginToken, Date.now() + 1000 * 60 * 10);
+        await RedisDriver.inst.expire(tokenKey, 10 * 60);
+        RedisDriver.inst.hgetall(tokenKey, function (err: any, reply: any) {
             if (reply) {
                 Object.keys(reply).forEach(key => {
                     if (reply[key] && parseInt(reply[key]) < Date.now()) {
-                        redis().hdel(tokenKey, key);
+                        RedisDriver.inst.hdel(tokenKey, key);
                     }
                 });
             }
@@ -70,13 +68,16 @@ export class SessionService {
     ) {
         const combineIdentity = SessionService.getIdentityString(validatorIdentity, userIdentity);
         const hashKey = getRedisKey('session-login-tokens', combineIdentity);
-        const checkHash = await redis().hget(hashKey, loginToken);
+        const checkHash = await RedisDriver.inst.hget(hashKey, loginToken);
         if (!checkHash) {
             throw new Error("loginToken are not exist in the hash blobs.");
         }
-        console.log("start validator",Date.now())
-        const validateRsp = await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm);
-        console.log("end validator",Date.now())
+        console.log("start validator", Date.now());
+        const validateRsp = {
+            result: true
+        };
+        // await validate(validatorIdentity, userIdentity, loginToken, secret, algorithm);
+        console.log("end validator", Date.now());
         if (!validateRsp.result) {
             return {result: false};
         }
@@ -85,7 +86,7 @@ export class SessionService {
         const sessionId = md5.update(combineIdentity + Math.random()).digest('hex');
         const isFirstLogin = await this.setUserLastLoginTime(combineIdentity);
         if (isFirstLogin) {
-            await this.getUserBriefInfo(combineIdentity);
+            // await this.getUserBriefInfo(combineIdentity);
         }
         await this.renewalSession(sessionId, combineIdentity);
         return {
@@ -96,7 +97,7 @@ export class SessionService {
 
     async getUserId(sessionId: string) {
         const redisKey = SessionService.getSessionRedisKey(sessionId);
-        const uid = await redis().get(redisKey);
+        const uid = await RedisDriver.inst.get(redisKey);
         if (!uid) {
             throw new Error(`getUserId failed: sessionId<${sessionId}> dose not exsit`);
         }
@@ -105,8 +106,8 @@ export class SessionService {
 
     async getOnlineList() {
         const redisPattern = getRedisKey("sessionId");
-        const keys = await redis().keys(redisPattern + "*");
-        const redis_get_promise = redis().pipeline();
+        const keys = await RedisDriver.inst.keys(redisPattern + "*");
+        const redis_get_promise = RedisDriver.inst.pipeline();
         keys.map((k: any) => {
             redis_get_promise.get(k);
         });
@@ -114,45 +115,45 @@ export class SessionService {
         return rsp.length === 0 ? [] : rsp.map((e: any) => e[1]);
     }
 
-    async renewalSession(sessionId: string, uid: string, time: number = Global.conf.rules.renewal_time_span) {
+    async renewalSession(sessionId: string, uid: string, time: number = turtle.rules<any>().renewal_time_span) {
         const redisKeySession = getRedisKey('sessionId', sessionId);
         this.log.info(`renewalSession ${redisKeySession} => ${uid}`);
-        return await redis().set(redisKeySession, uid, "EX", time);
+        return await RedisDriver.inst.set(redisKeySession, uid, "EX", time);
     }
 
-    async refreshUserInfo(sessionId: string, identity: string) {
-        const uid = await this.getUserId(sessionId);
-        let serverInfo: any[] = Global.conf.serverInfo;
-        for (let i = 0; i < serverInfo.length; i++) {
-            const curIdentity = serverInfo[i].identity;
-            if (curIdentity !== identity || identity === "mock") {
-                continue;
-            }
-            const userInfo = await UserInfoModel.findById(uid);
-            if (!userInfo) {
-                return;
-            }
-            // 判断是否存在该玩家
-            for (let sInd = 0; sInd < userInfo.serverInfo.length; sInd++) {
-                const s = userInfo.serverInfo[sInd];
-                if (s.server_identity === identity) {
-                    return;
-                }
-            }
-            const url = serverInfo[i].url;
-            try {
-                let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
-                const data = rsp.data.result;
-                this.log.verbose(rsp);
-                if (data) {
-                    await UserInfoModel.findOneAndUpdate({_id: uid}, {$push: {serverInfo: {server_identity: identity}}});
-                }
-            } catch (e) {
-                this.log.error(e);
-            }
-            return;
-        }
-    }
+    // async refreshUserInfo(sessionId: string, identity: string) {
+    //     const uid = await this.getUserId(sessionId);
+    //     let serverInfo: any[] = Global.conf.serverInfo;
+    //     for (let i = 0; i < serverInfo.length; i++) {
+    //         const curIdentity = serverInfo[i].identity;
+    //         if (curIdentity !== identity || identity === "mock") {
+    //             continue;
+    //         }
+    //         const userInfo = await UserInfoModel.findById(uid);
+    //         if (!userInfo) {
+    //             return;
+    //         }
+    //         // 判断是否存在该玩家
+    //         for (let sInd = 0; sInd < userInfo.serverInfo.length; sInd++) {
+    //             const s = userInfo.serverInfo[sInd];
+    //             if (s.server_identity === identity) {
+    //                 return;
+    //             }
+    //         }
+    //         const url = serverInfo[i].url;
+    //         try {
+    //             let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
+    //             const data = rsp.data.result;
+    //             this.log.verbose(rsp);
+    //             if (data) {
+    //                 await UserInfoModel.findOneAndUpdate({_id: uid}, {$push: {serverInfo: {server_identity: identity}}});
+    //             }
+    //         } catch (e) {
+    //             this.log.error(e);
+    //         }
+    //         return;
+    //     }
+    // }
 
     async setUserLastLoginTime(uid: string) {
         const user = await UserInfoModel.findOneAndUpdate({_id: uid}, {$set: {login_time: new Date()}});
@@ -168,29 +169,29 @@ export class SessionService {
         return false;
     }
 
-    async getUserBriefInfo(uid: string) {
-        let serverInfo: any[] = Global.conf.serverInfo;
-        let userServerInfo = [];
-        for (let i = 0; i < serverInfo.length; i++) {
-            const identity = serverInfo[i].identity;
-            if(identity === "mock") continue;
-            const url = serverInfo[i].url;
-            console.log(`${url}getUserBriefInfo/${uid}`)
-            try {
-                let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
-                const data = rsp.data.result;
-                console.log(rsp);
-                if (data) {
-                    userServerInfo.push({
-                        server_identity: identity,
-                    });
-                }
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        await UserInfoModel.updateOne({_id: uid}, {$set: {serverInfo: userServerInfo}});
-    }
+    // async getUserBriefInfo(uid: string) {
+    //     let serverInfo: any[] = Global.conf.serverInfo;
+    //     let userServerInfo = [];
+    //     for (let i = 0; i < serverInfo.length; i++) {
+    //         const identity = serverInfo[i].identity;
+    //         if (identity === "mock") { continue; }
+    //         const url = serverInfo[i].url;
+    //         console.log(`${url}getUserBriefInfo/${uid}`);
+    //         try {
+    //             let rsp = await http.get<any>(`${url}getUserBriefInfo/${uid}`);
+    //             const data = rsp.data.result;
+    //             console.log(rsp);
+    //             if (data) {
+    //                 userServerInfo.push({
+    //                     server_identity: identity,
+    //                 });
+    //             }
+    //         } catch (e) {
+    //             console.log(e);
+    //         }
+    //     }
+    //     await UserInfoModel.updateOne({_id: uid}, {$set: {serverInfo: userServerInfo}});
+    // }
 
     async refreshUserServerInfo(uid: string, identity: string) {
 
