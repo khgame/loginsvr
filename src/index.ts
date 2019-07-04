@@ -1,6 +1,5 @@
-import {CommandLineApp} from "@khgame/turtle/lib";
+import {CommandLineApp, RedisDriver} from "@khgame/turtle/lib";
 import {Api} from "./api/api";
-
 
 const defaultConf = {
     name: "loginSvr",
@@ -47,8 +46,15 @@ const cli = new CommandLineApp(
     "0.0.1",
     ["mongo", "redis", "discover/consul"],
     () => new Api(Object.values(controllers), 1000,
-        async (action) => { //
-            // todo: validate service
+        async (action) => {
+            const token = action.request.headers.token;
+            if (token) {
+                const uid = await RedisDriver.inst.get(token);
+                if (uid) {
+                    await RedisDriver.inst.set(token, uid, "EX", 7200);
+                    return uid;
+                }
+            }
             return true;
         }
     ),
