@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import { DiscoverConsulDriver, genAssert } from "@khgame/turtle";
+import { DiscoverConsulDriver, genAssert, http } from "@khgame/turtle";
 import { LoginService } from "./loginService";
 
 const deltaTime = 30000;
@@ -65,7 +65,7 @@ export class ServiceService {
     }
     public async chooseService(token: string, serviceName: string) {
         const uid = await this.loginService.getOnlineUIDByToken(token);
-        // TODO 断开连接
+
         const nodes = this.service[serviceName];
         this.assert.ok(nodes && Object.keys(nodes).length > 0, `no service ${serviceName}`);
         let node: any = null;
@@ -84,19 +84,40 @@ export class ServiceService {
             serviceName: serviceName,
             id: node.id
         };
- 
+        // todo post create sessionToken to game
+        const rsp = await $http.post<any>(`http://${node.address}:${node.port}/api/v1/login/create_session`, {
+            uid
+        });
+        this.assert.ok(rsp && rsp.data && rsp.data.result, "server is error");
         return {
             address: node.address,
-            port: node.port
+            port: node.port,
+            token: rsp.data.result
         };
     }
-    public async validateToken(token: string, serviceName: string, id: string) {
-        this.assert.ok(this.service[serviceName] && this.service[serviceName][id], `process is not exist. ${serviceName} ${id}`);
-        const lastSyncTime = this.service[serviceName][id].lastSyncTime;
-        this.assert.ok(lastSyncTime > Date.now() - deltaTime, `process has no heartbeat. ${serviceName} ${id}`);
-        const uid = await this.loginService.getOnlineUIDByToken(token);
-        const user = this.users[uid];
-        this.assert.ok(user && user.serviceName === serviceName && user.id === id, `user has not choose this service. ${uid}`);
-        return uid;
-    }
+    // public async validateToken(token: string, serviceName: string, id: string) {
+    //     this.assert.ok(this.service[serviceName] && this.service[serviceName][id], `process is not exist. ${serviceName} ${id}`);
+    //     const lastSyncTime = this.service[serviceName][id].lastSyncTime;
+    //     this.assert.ok(lastSyncTime > Date.now() - deltaTime, `process has no heartbeat. ${serviceName} ${id}`);
+    //     const uid = await this.loginService.getOnlineUIDByToken(token);
+    //     const user = this.users[uid];
+    //     this.assert.ok(user && user.serviceName === serviceName && user.id === id, `user has not choose this service. ${uid}`);
+    //     return uid;
+    // }
 }
+
+import axios, { AxiosInstance } from "axios";
+
+const $http = axios.create({
+  baseURL: "",
+  // headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  // withCredentials: true,
+  responseType: "json", // default
+  timeout: 30000,
+});
+
+$http.interceptors.request.use((config) => {
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});

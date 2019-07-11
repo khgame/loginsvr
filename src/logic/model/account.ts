@@ -108,5 +108,9 @@ export class AccountHelper {
         return await AccountModel.findOne({passport: passport});
     }
 
+    static async getByEmail(email: string): Promise<IAccountDocument | null> {
+        return await AccountModel.findOne({email: email});
+    }
+
 
 }

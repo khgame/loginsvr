@@ -1,9 +1,9 @@
-import {Service} from "typedi";
+import { Service } from "typedi";
 import * as crypto from "crypto";
-import {AccountHelper, AccountModel, IAccountDocument, IAccountLoginInfo, IAccountRegInfo} from "./model/account";
-import {genAssert, genLogger, getRedisKey, RedisDriver, turtle} from "@khgame/turtle/lib";
-import {mail} from "@khgame/turtle/lib/utils/sendMail";
-import {ILoginRule} from "../constant/iLoginRule";
+import { AccountHelper, AccountModel, IAccountDocument, IAccountLoginInfo, IAccountRegInfo } from "./model/account";
+import { genAssert, genLogger, getRedisKey, RedisDriver, turtle, DiscoverConsulDriver } from "@khgame/turtle/lib";
+import { mail } from "@khgame/turtle/lib/utils/sendMail";
+import { ILoginRule } from "../constant/iLoginRule";
 
 @Service()
 export class LoginService {
@@ -52,15 +52,42 @@ export class LoginService {
     }
 
     async signInByEmail(email: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
-        return {token: ""};
+        const emailOrg = await AccountModel.findOne({ email });
+        this.assert.ok(!emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
+
+        let md5 = crypto.createHash('md5');
+        const password = md5.update(pwd).digest('hex');
+
+        md5 = crypto.createHash('md5');
+        const webToken = md5.update(`${email}:${Math.random()}`).digest('hex');
+
+        const redisKey = getRedisKey("email_sign", webToken);
+
+        const self = await DiscoverConsulDriver.inst.getSelf();
+        this.assert.ok(self, "self is not exist");
+        const address = self!.address;
+        const port = self!.port;
+
+        const url = `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
+
+       
+        // try {
+
+        //     await this.sendValidateMail(email, "test", "");
+        // } catch (e) {
+        //     console.log(e);
+        //     throw e;
+        // }
+        await RedisDriver.inst.set(redisKey, JSON.stringify({ email, password }), "EX", 300);
+        return { token: url };
     }
 
     async signInByPhone(phone: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
-        return {token: ""};
+        return { token: "" };
     }
 
     async signInBySign(sign: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
-        return {token: ""};
+        return { token: "" };
     }
 
     async loginByPassport(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
@@ -83,21 +110,41 @@ export class LoginService {
         };
     }
 
-    async getOnlineUIDByToken(webToken: string): Promise<string>  {
+    async loginByEmail(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
+        const account = await AccountHelper.getByEmail(passport);
+        this.assert.ok(account, () => `login by email ${passport} failed, this pass port does not exist.`);
+
+        let md5 = crypto.createHash('md5');
+        const password = md5.update(pwd).digest('hex');
+
+        this.assert.sEqual(account!.password, password, () => `login by email ${passport} failed, password not match.`);
+
+        md5 = crypto.createHash('md5');
+        const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
+
+        await this.renewalWebToken(webToken, account!._id.toString());
+        return {
+            token: webToken,
+            account: account,
+            login_info: loginInfo
+        };
+    }
+
+    async getOnlineUIDByToken(webToken: string): Promise<string> {
         const rkWebToken = LoginService.getRKWebToken(webToken);
         const l2id = await RedisDriver.inst.get(rkWebToken);
         this.assert.ok(l2id, () => `get l2id by webToken <${webToken}> failed: cannot find this token`);
         return l2id!;
     }
 
-    async getOnlineAccountInfo(webToken: string) : Promise<IAccountDocument> {
+    async getOnlineAccountInfo(webToken: string): Promise<IAccountDocument> {
         const l2id = await this.getOnlineUIDByToken(webToken);
         const account = await AccountHelper.getByUID(parseInt(l2id));
         this.assert.ok(account, () => `get account by webToken <${webToken}> failed: this account does not exist.`);
         return account!;
     }
 
-    async sendValidateMail(toEmail: string, subject: string, content: string){
+    async sendValidateMail(toEmail: string, subject: string, content: string) {
         await mail.sendMail(
             "tonarts",
             "auto@tonarts.org",
@@ -106,5 +153,19 @@ export class LoginService {
             content,
             turtle.rules<ILoginRule>().mail_option
         );
+    }
+
+    async validateEmail(token: string) {
+        const data = await RedisDriver.inst.get(token);
+        this.assert.ok(data, `${token} is invalid`);
+
+        const { email, password } = JSON.parse(data!);
+        this.assert.ok(email && password, `${token} is invalid`);
+
+        const account = new AccountModel({
+            email: email,
+            password: password,
+        });
+        await account.save();
     }
 }

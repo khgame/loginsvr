@@ -1,8 +1,8 @@
 import { API, Post, Body } from "./decorators";
-import {genAssert, genLogger} from "@khgame/turtle/lib";
-import {LoginService} from "../logic/loginService";
-import {IAccountDocument, IAccountRegInfo} from "../logic/model/account";
-import {Get, Param} from "routing-controllers";
+import { genAssert, genLogger } from "@khgame/turtle/lib";
+import { LoginService } from "../logic/loginService";
+import { IAccountDocument, IAccountRegInfo } from "../logic/model/account";
+import { Get, Param } from "routing-controllers";
 
 @API("/login")
 export class LoginController {
@@ -11,7 +11,7 @@ export class LoginController {
     assert = genAssert('api:login');
 
     constructor(public readonly loginServ: LoginService
-        ) {
+    ) {
     }
 
     @Post("/sign_in")
@@ -20,8 +20,8 @@ export class LoginController {
         identity: string, // passport, email, phone, signed_blob
         pwd: string, // password
         reg_info?: IAccountRegInfo
-    }) : Promise<{ token: string }> { // return webToken
-        const {type, identity, pwd, reg_info} = body;
+    }): Promise<{ token: string }> { // return webToken
+        const { type, identity, pwd, reg_info } = body;
         switch (type) {
             case "passport": return await this.loginServ.signInByPassport(identity, pwd, reg_info);
             case "email": return await this.loginServ.signInByEmail(identity, pwd, reg_info);
@@ -33,7 +33,7 @@ export class LoginController {
     }
 
     @Get("/online_account/:token")
-    public async online(@Param("token") token: string) : Promise<IAccountDocument> {
+    public async online(@Param("token") token: string): Promise<IAccountDocument> {
         return await this.loginServ.getOnlineAccountInfo(token);
     }
 
@@ -68,7 +68,7 @@ export class LoginController {
         passport: string,
         pwd: string // password
     }) {
-        const {passport, pwd} = body;
+        const { passport, pwd } = body;
         return await this.loginServ.loginByPassport(passport, pwd);
     }
 
@@ -77,6 +77,8 @@ export class LoginController {
         passport: string,
         pwd: string // password
     }) {
+        const { passport, pwd } = body;
+        return await this.loginServ.loginByEmail(passport, pwd);
     }
 
     @Post("/login_by_phone")
@@ -89,7 +91,11 @@ export class LoginController {
     @Post("/re_login")
     public async reLogin(@Body() body: {
         token: string
-    }){
+    }) {
+    }
+    @Get("/validate_email/:token")
+    public async validateEmail(@Param("token") token: string) {
+        return await this.loginServ.validateEmail(token);
     }
 
 }

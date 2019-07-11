@@ -29,12 +29,12 @@ export class ServiceController {
         const { token, serviceName } = body;
         return await this.serviceServ.chooseService(token, serviceName);
     }
-    @Post("/validate_token")
-    public async validateToken(@Body() body: {
-        token: string, serviceName: string, id: string
-    }) {
-        const { token, serviceName, id } = body;
-        return await this.serviceServ.validateToken(token, serviceName, id);
-    }
+    // @Post("/validate_token")
+    // public async validateToken(@Body() body: {
+    //     token: string, serviceName: string, id: string
+    // }) {
+    //     const { token, serviceName, id } = body;
+    //     return await this.serviceServ.validateToken(token, serviceName, id);
+    // }
 
 }

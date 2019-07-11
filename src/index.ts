@@ -42,7 +42,7 @@ const defaultConf = {
             secureConnection: true,
             auth: {
                 user: 'auto@tonarts.org',
-                pass: '',
+                pass: 'Xiaoshadan',
             }
         } as IMailOption
     }
