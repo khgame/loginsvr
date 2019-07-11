@@ -44,10 +44,12 @@ export interface IAccountDocument extends Document {
     login_ip: string;
     login_at: Date;
     create_at: Date;
+
+    // server: string;
 }
 
 const AccountSchema = new Schema({
-    _id: {type: Number, alias: "uid"},
+    _id: {type: Number, alias: "l2id"},
 
     passport: String,
     email: String,
@@ -67,6 +69,7 @@ const AccountSchema = new Schema({
         channel: String,
         device: String,
     },
+
     login_at: Date,
     create_at: Date,
 });
@@ -78,7 +81,7 @@ AccountSchema.pre("save", async function (next) {
     const doc = this as IAccountDocument;
     if (doc.isNew) {
         const now = new Date();
-        const value = await CounterHelper.incAndGet("account");
+        const value = await CounterHelper.incAndGet("l2id");
         doc._id = value;
         doc.create_at = doc.create_at || now;
         doc.login_at = doc.login_at || now;
@@ -93,12 +96,12 @@ AccountSchema.pre("save", async function (next) {
     next();
 });
 
-export const AccountModel = mongoose.model<IAccountDocument>("account", AccountSchema);
+export const AccountModel = mongoose.model<IAccountDocument>("l2account", AccountSchema);
 
 export class AccountHelper {
 
-    static async getByUID(uid: number): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({_id: uid});
+    static async getByUID(l2id: number): Promise<IAccountDocument | null> {
+        return await AccountModel.findOne({_id: l2id});
     }
 
     static async getByPassport(passport: string): Promise<IAccountDocument | null> {

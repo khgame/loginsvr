@@ -35,11 +35,21 @@ const defaultConf = {
         }
     },
     rules: {
-        "renewal_time_span": 600
+        "renewal_time_span": 600,
+        mail_option: {
+            host: 'smtp.exmail.qq.com',
+            port: 465,
+            secureConnection: true,
+            auth: {
+                user: 'auto@tonarts.org',
+                pass: '',
+            }
+        } as IMailOption
     }
 };
 
 import * as controllers from "./controllers";
+import {IMailOption} from "@khgame/turtle/lib/utils/sendMail";
 
 const cli = new CommandLineApp(
     "loginSvr",

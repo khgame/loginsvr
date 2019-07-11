@@ -35,10 +35,10 @@
   resolved "https://registry.npm.taobao.org/@khgame/one-line-call/download/@khgame/one-line-call-0.1.5.tgz#38a003458b1fe2c31da3fc1317f0be85cce914b9"
   integrity sha1-OKADRYsf4sMdo/wTF/C+hczpFLk=
 
-"@khgame/turtle@^0.0.39":
-  version "0.0.39"
-  resolved "https://registry.npm.taobao.org/@khgame/turtle/download/@khgame/turtle-0.0.39.tgz?cache=0&sync_timestamp=1561967060298&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40khgame%2Fturtle%2Fdownload%2F%40khgame%2Fturtle-0.0.39.tgz#cc84778acf48b8d61c17a5bf736157f12119334f"
-  integrity sha1-zIR3is9IuNYcF6W/c2FX8SEZM08=
+"@khgame/turtle@^0.0.48":
+  version "0.0.48"
+  resolved "https://registry.npm.taobao.org/@khgame/turtle/download/@khgame/turtle-0.0.48.tgz?cache=0&sync_timestamp=1562831694842&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40khgame%2Fturtle%2Fdownload%2F%40khgame%2Fturtle-0.0.48.tgz#d407d1d663695a4512196a1a0d060958c2524abf"
+  integrity sha1-1AfR1mNpWkUSGWoaDQYJWMJSSr8=
   dependencies:
     "@khgame/jsonrpc" "^0.1.7"
     "@khgame/one-line-call" "^0.1.5"
@@ -2626,6 +2626,11 @@ node-rsa@^1.0.5:
   integrity sha1-hU3BsnVynWm8JYg/g8qAcF25Ji4=
   dependencies:
     asn1 "^0.2.4"
+
+nodemailer@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.npm.taobao.org/nodemailer/download/nodemailer-6.2.1.tgz#20d773925eb8f7a06166a0b62c751dc8290429f3"
+  integrity sha1-INdzkl6496BhZqC2LHUdyCkEKfM=
 
 nodemon@^1.18.10:
   version "1.18.10"

@@ -1,5 +1,4 @@
-import {Document, Schema} from "mongoose";
-import * as mongoose from "mongoose";
+import {Document, Schema, db} from "./base";
 
 export interface ICounterDocument extends Document {
     _id: string;
@@ -11,7 +10,7 @@ const CounterSchema = new Schema({
     seq: {type: Number, default: 0},
 });
 
-export const CounterModel = mongoose.model<ICounterDocument>("counter", CounterSchema);
+export const CounterModel = db.model<ICounterDocument>("counter", CounterSchema);
 
 export class CounterHelper {
 

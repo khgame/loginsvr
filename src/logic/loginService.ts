@@ -2,6 +2,8 @@ import {Service} from "typedi";
 import * as crypto from "crypto";
 import {AccountHelper, AccountModel, IAccountDocument, IAccountLoginInfo, IAccountRegInfo} from "./model/account";
 import {genAssert, genLogger, getRedisKey, RedisDriver, turtle} from "@khgame/turtle/lib";
+import {mail} from "@khgame/turtle/lib/utils/sendMail";
+import {ILoginRule} from "../constant/iLoginRule";
 
 @Service()
 export class LoginService {
@@ -20,10 +22,10 @@ export class LoginService {
         this.log.verbose("Service: instance created ");
     }
 
-    async renewalWebToken(webToken: string, uid: string, time: number = turtle.rules<any>().renewal_time_span) {
+    async renewalWebToken(webToken: string, l2id: string, time: number = turtle.rules<any>().renewal_time_span) {
         const rkWebToken = LoginService.getRKWebToken(webToken);
-        this.log.info(`renewal Session ${rkWebToken} => ${uid}`);
-        return await RedisDriver.inst.set(rkWebToken, uid, "EX", time);
+        this.log.info(`renewal Session ${rkWebToken} => ${l2id}`);
+        return await RedisDriver.inst.set(rkWebToken, l2id, "EX", time);
     }
 
     async signInByPassport(passport: string, pwd: string, regInfo: IAccountRegInfo = {}) {
@@ -83,15 +85,26 @@ export class LoginService {
 
     async getOnlineUIDByToken(webToken: string): Promise<string>  {
         const rkWebToken = LoginService.getRKWebToken(webToken);
-        const uid = await RedisDriver.inst.get(rkWebToken);
-        this.assert.ok(uid, () => `get uid by webToken <${webToken}> failed: cannot find this token`);
-        return uid!;
+        const l2id = await RedisDriver.inst.get(rkWebToken);
+        this.assert.ok(l2id, () => `get l2id by webToken <${webToken}> failed: cannot find this token`);
+        return l2id!;
     }
 
     async getOnlineAccountInfo(webToken: string) : Promise<IAccountDocument> {
-        const uid = await this.getOnlineUIDByToken(webToken);
-        const account = await AccountHelper.getByUID(parseInt(uid));
+        const l2id = await this.getOnlineUIDByToken(webToken);
+        const account = await AccountHelper.getByUID(parseInt(l2id));
         this.assert.ok(account, () => `get account by webToken <${webToken}> failed: this account does not exist.`);
         return account!;
+    }
+
+    async sendValidateMail(toEmail: string, subject: string, content: string){
+        await mail.sendMail(
+            "tonarts",
+            "auto@tonarts.org",
+            toEmail,
+            subject,
+            content,
+            turtle.rules<ILoginRule>().mail_option
+        );
     }
 }
