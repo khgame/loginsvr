@@ -56,6 +56,7 @@ export class LoginService {
     async signInByEmail(email: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
         this.assert.ok(email, () => `sign in by email failed, the email cannot be empty.`);
         this.assert.ok(pwd, () => `sign in by email ${email} failed, the pwd cannot be empty.`);
+        this.assert.ok(typeof pwd === "string", () => `sign in by email ${email} failed, the pwd should be a string.`);
 
         const emailOrg = await AccountModel.findOne({ email });
         this.assert.ok(!emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
