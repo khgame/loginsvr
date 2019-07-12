@@ -3,7 +3,7 @@ import * as Koa from "koa";
 import { Context } from "koa";
 import { createServer, Server } from "http";
 import { Logger } from "winston";
-import { genLogger, IApi, APIRunningState } from "@khgame/turtle/lib";
+import {genLogger, IApi, APIRunningState, CError} from "@khgame/turtle/lib";
 import { Action } from "routing-controllers";
 import { Container } from "typedi";
 import { forCondition } from "kht/lib";
@@ -79,14 +79,22 @@ export class Api implements IApi {
                     ctx.status = 403;
                 }
             } catch (error) {
+                let code : number | string = 500;
+                if (error instanceof CError) {
+                    code = error.code;
+                } else if (error.hasOwnProperty("statusCode")) {
+                    code = error.statusCode;
+                }
+
                 ctx.status = 200;
                 const msgCode = Number(error.message || error);
                 ctx.body = {
-                    statusCode: error.statusCode || 500,
+                    statusCode: code,
                     message: isNaN(msgCode) ? (error.message || error) : msgCode,
                     stack: error.stack
                 };
-                this.log.error(error);
+                // console.log(error);
+                this.log.error(error.message + " stack:" + error.stack);
             }
             this.runningRequest -= 1;
         });
