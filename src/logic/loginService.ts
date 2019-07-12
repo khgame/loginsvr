@@ -29,6 +29,7 @@ export class LoginService {
     }
 
     async signInByPassport(passport: string, pwd: string, regInfo: IAccountRegInfo = {}) {
+
         const accountOrg = await AccountHelper.getByPassport(passport);
         this.assert.ok(!accountOrg, () => `sign in by passport ${passport} failed, this pass port is already exist.`);
 
@@ -43,6 +44,7 @@ export class LoginService {
 
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account._id}:${Math.random()}`).digest('hex');
+
         await this.renewalWebToken(webToken, account._id.toString());
 
         return {
@@ -52,32 +54,36 @@ export class LoginService {
     }
 
     async signInByEmail(email: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
+        this.assert.ok(email, () => `sign in by email failed, the email cannot be empty.`);
+        this.assert.ok(pwd, () => `sign in by email ${email} failed, the pwd cannot be empty.`);
+
         const emailOrg = await AccountModel.findOne({ email });
         this.assert.ok(!emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
 
+
         let md5 = crypto.createHash('md5');
         const password = md5.update(pwd).digest('hex');
+        // this.log.info(`create webToken ${email} `);
 
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${email}:${Math.random()}`).digest('hex');
 
         const redisKey = getRedisKey("email_sign", webToken);
 
-        const self = await DiscoverConsulDriver.inst.getSelf();
-        this.assert.ok(self, "self is not exist");
-        const address = self!.address;
-        const port = self!.port;
+        // const self = await DiscoverConsulDriver.inst.getSelf();
+        // this.assert.ok(self, "self is not exist");
+        const address = turtle.runtime.ip;
+        const port = turtle.runtime.port;
 
         const url = `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
+        this.log.info(`create webToken ${email} ${url}`);
 
-       
-        // try {
-
-        //     await this.sendValidateMail(email, "test", "");
-        // } catch (e) {
-        //     console.log(e);
-        //     throw e;
-        // }
+        try {
+            await this.sendMail(email, "Validate Email", url);
+        } catch (e) {
+            this.log.error(`sign in by email ${email} failed, send email error: ${e.message}, stack: ${e.stack}`);
+            throw e;
+        }
         await RedisDriver.inst.set(redisKey, JSON.stringify({ email, password }), "EX", 300);
         return { token: url };
     }
@@ -144,10 +150,13 @@ export class LoginService {
         return account!;
     }
 
-    async sendValidateMail(toEmail: string, subject: string, content: string) {
+    async sendMail(toEmail: string, subject: string, content: string) {
+        const email = turtle.rules<ILoginRule>().mail_option.auth.user;
+        const indAt = email.indexOf("@") + 1;
+        this.assert.ok(indAt >= 0, `send mail failed, email ${email} format error`);
         await mail.sendMail(
-            "tonarts",
-            "auto@tonarts.org",
+            email.substr(indAt),
+            email,
             toEmail,
             subject,
             content,
