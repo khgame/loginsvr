@@ -71,7 +71,7 @@ export class LoginService {
 
         const redisKey = getRedisKey("email_sign", webToken);
 
-        // const self = await DiscoverConsulDriver.inst.getSelf();
+         // const self = await DiscoverConsulDriver.inst.getSelf();
         // this.assert.ok(self, "self is not exist");
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
@@ -79,8 +79,21 @@ export class LoginService {
         const url = `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
         this.log.info(`create webToken ${email} ${url}`);
 
+        const html = `
+<div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
+  <p style="margin: 0;">
+    <strong style="color:white;font-size: 2rem;">你好</strong>
+  </p>
+  <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
+    <p style="margin: 0;">激活链接标题</p>
+    <a href="http://${url}" style="display: block; color:white;margin-top: 1rem;">激活链接: ${redisKey}</a>
+  </div>
+  <p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>
+</div>
+`;
+
         try {
-            await this.sendMail(email, "Validate Email", url);
+            await this.sendMail(email, "Validate Email", html);
         } catch (e) {
             this.log.error(`sign in by email ${email} failed, send email error: ${e.message}, stack: ${e.stack}`);
             throw e;

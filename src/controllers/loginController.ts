@@ -37,8 +37,6 @@ export class LoginController {
         return await this.loginServ.getOnlineAccountInfo(token);
     }
 
-
-
     @Post("/change_pwd")
     public async changePwd(@Body() body: {
         old_email: string

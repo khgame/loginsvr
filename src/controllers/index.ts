@@ -1,2 +1,2 @@
 export * from './loginController';
-export * from './serviceController';
+export * from './serverController';

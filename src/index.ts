@@ -44,7 +44,8 @@ const defaultConf = {
                 user: 'auto@tonarts.org',
                 pass: 'Xiaoshadan',
             }
-        } as IMailOption
+        } as IMailOption,
+        servers: [ "cryptoHeroes" ]
     }
 };
 
