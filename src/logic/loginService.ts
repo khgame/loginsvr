@@ -168,7 +168,7 @@ export class LoginService {
         const email = turtle.rules<ILoginRule>().mail_option.auth.user;
         const indAt = email.indexOf("@") + 1;
         this.assert.ok(indAt >= 0, `send mail failed, email ${email} format error`);
-        await mail.sendMail(
+        await mail.sendMailHtml(
             email.substr(indAt),
             email,
             toEmail,

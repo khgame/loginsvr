@@ -3,7 +3,7 @@ import { genAssert, genLogger } from "@khgame/turtle/lib";
 import { ServerService } from "../logic/serverService";
 import {Get} from "routing-controllers";
 
-@API("/servers")
+@API("/server")
 export class ServerController {
 
     log = genLogger('api:server');
@@ -14,8 +14,13 @@ export class ServerController {
     ) {
     }
 
-    @Get("/servers")
-    public async servers() {
+    @Get("/list")
+    public async list() {
+        return this.serverServ.serverList;
+    }
+
+    @Get("/status")
+    public async status() {
         return this.serverServ.serverStatus;
     }
 

@@ -64,7 +64,12 @@ export class ServerService {
         for (let i in serverLst) {
             const serviceName = serverLst[i];
             /** get all servers */
-            const serviceNodes = await DiscoverConsulDriver.inst.serviceNodes(serviceName);
+            let serviceNodes: IServiceNode[] = [];
+            try {
+                serviceNodes = await DiscoverConsulDriver.inst.serviceNodes(serviceName);
+            } catch (e) {
+                this.log.error(`get serviceNodes failed, error: ${e.message} stack: ${e.stack}`);
+            }
             if (serviceNodes.length === 0) {
                 continue;
             }
