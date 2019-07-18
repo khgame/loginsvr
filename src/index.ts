@@ -41,11 +41,11 @@ const defaultConf = {
             port: 465,
             secureConnection: true,
             auth: {
-                user: 'auto@tonarts.org',
-                pass: 'Xiaoshadan',
+                user: 'YOUR_EMAIL_ADDRESS',
+                pass: 'YOUR_EMAIL_PASS',
             }
         } as IMailOption,
-        servers: [ "cryptoHeroes" ]
+        servers: [ 'AVAILABLE_SERVER_NAME' ]
     }
 };
 
@@ -54,7 +54,7 @@ import {IMailOption} from "@khgame/turtle/lib/utils/sendMail";
 
 const cli = new CommandLineApp(
     "loginSvr",
-    "0.0.1",
+    process.version,
     ["mongo", "redis", "discover/consul"],
     () => new Api(Object.values(controllers), 1000,
         async (action) => {
