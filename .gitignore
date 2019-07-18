@@ -1,3 +1,6 @@
+# development conf
+loginSvr.development.json
+
 # runtime
 .*.turtle
 

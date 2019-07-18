@@ -14,6 +14,17 @@ export class LoginController {
     ) {
     }
 
+
+    @Get("/validate_email/:token")
+    public async validateEmail(@Param("token") token: string) {
+        return await this.loginServ.validateEmail(token);
+    }
+
+    @Get("/online_account/:token")
+    public async online(@Param("token") token: string): Promise<IAccountDocument> {
+        return await this.loginServ.getOnlineAccountInfo(token);
+    }
+
     @Post("/sign_in")
     public async signIn(@Body() body: {
         type: "passport" | "email" | "phone" | "sign"
@@ -30,11 +41,6 @@ export class LoginController {
             default: break;
         }
         throw new Error(`sign in type <${type}> error`);
-    }
-
-    @Get("/online_account/:token")
-    public async online(@Param("token") token: string): Promise<IAccountDocument> {
-        return await this.loginServ.getOnlineAccountInfo(token);
     }
 
     @Post("/change_pwd")
@@ -90,10 +96,6 @@ export class LoginController {
     public async reLogin(@Body() body: {
         token: string
     }) {
-    }
-    @Get("/validate_email/:token")
-    public async validateEmail(@Param("token") token: string) {
-        return await this.loginServ.validateEmail(token);
     }
 
 }
