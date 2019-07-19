@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "outDir": "dist",
+    "outDir": "bin",
     "sourceMap": true,
     "strict": true,
     "emitDecoratorMetadata": true,
