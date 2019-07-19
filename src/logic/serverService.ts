@@ -53,11 +53,12 @@ export class ServerService {
 
     async update() {
         while (true) {
-            await forMs(5000);
             try {
                 await this.refreshCache();
             } catch (err) {
                 this.log.error(`ServerService.update is error: ${err.message}, stack: ${err.stack}`);
+            } finally {
+                await forMs(5000);
             }
         }
     }
@@ -89,7 +90,7 @@ export class ServerService {
                     lastSyncTime: Date.now(),
                 };
                 http().get(`http://${sn.address}:${sn.port}/api/v1/login/online_counts`).then(ret => {
-                    this.servers[serviceName][sn.id] = ret.data.result;
+                    this.servers[serviceName][sn.id].userCount = ret.data.result;
                 }).catch(err => {
                     this.log.warn(`get online_counts of server ${serviceName}:${sn.id} failed, error: ${err.message} stack: ${err.stack}`);
                 });
