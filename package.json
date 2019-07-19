@@ -1,6 +1,6 @@
 {
   "name": "@khgame/loginsvr",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "",
   "main": "bin/index.js",
   "bin": {
@@ -72,6 +72,6 @@
     "typescript": "^3.4.2"
   },
   "files": [
-    "dist"
+    "bin"
   ]
 }
