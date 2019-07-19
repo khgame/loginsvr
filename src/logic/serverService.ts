@@ -78,12 +78,13 @@ export class ServerService {
             }
 
             serviceNodes.forEach(sn => {
+                this.servers[serviceName] = this.servers[serviceName] || {};
                 this.servers[serviceName][sn.id] = {
                     ...sn,
                     lastSyncTime: Date.now(),
                 };
                 http().get(`http://${sn.address}:${sn.port}/api/v1/login/online_counts`).then(ret => {
-                    this.servers[serviceName][sn.id] = ret.data.data;
+                    this.servers[serviceName][sn.id] = ret.data.result;
                 }).catch(err => {
                     this.log.warn(`get online_counts of server ${serviceName}:${sn.id} failed, error: ${err.message} stack: ${err.stack}`);
                 });
