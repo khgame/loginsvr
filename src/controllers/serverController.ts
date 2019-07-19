@@ -27,10 +27,10 @@ export class ServerController {
     @Post("/choose")
     public async chooseService(@Body() body: {
         token: string,
-        serviceName: string
+        service_name: string
     }) {
-        const { token, serviceName } = body;
-        return await this.serverServ.chooseServer(token, serviceName);
+        const { token, service_name } = body;
+        return await this.serverServ.chooseServer(token, service_name);
     }
 
     // @Post("/validate_token")
