@@ -6,16 +6,18 @@
         "types/*"
       ]
     },
+    "outDir": "bin",
     "module": "commonjs",
-    "target": "es2015",
+    "target": "es5",
+    "moduleResolution": "node",
 
     "declaration": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "outDir": "bin",
     "sourceMap": true,
+    
     "strict": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
