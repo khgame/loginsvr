@@ -54,7 +54,11 @@ export class ServerService {
     async update() {
         while (true) {
             await forMs(5000);
-            await this.refreshCache();
+            try {
+                await this.refreshCache();
+            }catch(err) {
+                this.log.error(`ServerService.update is error: ${err.message}, stack: ${err.stack}`);
+            }
         }
     }
 
@@ -72,6 +76,7 @@ export class ServerService {
             } catch (e) {
                 this.log.error(`get serviceNodes failed, error: ${e.message} stack: ${e.stack}`);
             }
+
             if (serviceNodes.length === 0) {
                 this.log.info(`cannot find instance of server ${serviceName}`);
                 continue;
