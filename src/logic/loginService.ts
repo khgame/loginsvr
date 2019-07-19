@@ -71,7 +71,7 @@ export class LoginService {
 
         const redisKey = getRedisKey("email_sign", webToken);
 
-         // const self = await DiscoverConsulDriver.inst.getSelf();
+        // const self = await DiscoverConsulDriver.inst.getSelf();
         // this.assert.ok(self, "self is not exist");
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
@@ -148,6 +148,72 @@ export class LoginService {
             account: account,
             login_info: loginInfo
         };
+    }
+
+    async findPassword(email: string) {
+        this.assert.ok(email, () => `sign in by email failed, the email cannot be empty.`);
+
+        const emailOrg = await AccountModel.findOne({ email });
+        this.assert.ok(emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
+
+        const md5 = crypto.createHash('md5');
+        const webToken = md5.update(`${email}:${Math.random()}`).digest('hex');
+
+        const redisKey = getRedisKey("email_find_pwd", webToken);
+
+        const address = turtle.runtime.ip;
+        const port = turtle.runtime.port;
+
+        const url = `${address}:${port}/api/v1/login/validate_find_pwd/${redisKey}`;
+        this.log.info(`create webToken ${email} ${url}`);
+
+        const html = `
+<div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
+  <p style="margin: 0;">
+    <strong style="color:white;font-size: 2rem;">你好</strong>
+  </p>
+  <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
+    <p style="margin: 0;">激活链接标题</p>
+    <a href="http://${url}" style="display: block; color:white;margin-top: 1rem;">激活链接: ${redisKey}</a>
+  </div>
+  <p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>
+</div>
+`;
+
+        try {
+            await this.sendMail(email, "Retrieve password", html);
+        } catch (e) {
+            this.log.error(`sign in by email ${email} failed, send email error: ${e.message}, stack: ${e.stack}`);
+            throw e;
+        }
+        await RedisDriver.inst.set(redisKey, email, "EX", 300);
+        return { token: url };
+    }
+
+    async resetPwd(token: string, pwd: string) {
+        const email = await RedisDriver.inst.get(token);
+        this.assert.ok(email, `${token} is invalid`);
+
+        let md5 = crypto.createHash('md5');
+        const password = md5.update(pwd).digest('hex');
+
+        const account = await AccountModel.findOneAndUpdate({ email }, { $set: { password } }, { new: true });
+        return account;
+    }
+
+    async changePwd(email: string, old_pwd: string, pwd: string) {
+        let md5 = crypto.createHash('md5');
+        const old_password = md5.update(old_pwd).digest('hex');
+        const account = await AccountModel.findOne({
+            email,
+            password: old_password
+        });
+        this.assert.ok(account, `pwd is error`);
+        md5 = crypto.createHash('md5');
+        const new_password = md5.update(pwd).digest('hex');
+        return await AccountModel.findOneAndUpdate({
+            email, password: old_password
+        }, { $set: { password: new_password } }, { new: true });
     }
 
     async getOnlineUIDByToken(webToken: string): Promise<string> {

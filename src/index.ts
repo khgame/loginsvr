@@ -43,8 +43,8 @@ const defaultConf = {
             port: 465,
             secureConnection: true,
             auth: {
-                user: 'YOUR_EMAIL_ADDRESS',
-                pass: 'YOUR_EMAIL_PASS',
+                user: 'auto@tonarts.org',
+                pass: 'Xiaoshadan1234',
             }
         } as IMailOption,
         servers: [ 'AVAILABLE_SERVER_NAME' ]
