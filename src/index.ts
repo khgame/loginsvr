@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {CommandLineApp, RedisDriver} from "@khgame/turtle/lib";
 import {Api} from "./api/api";
 
