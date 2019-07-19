@@ -1,8 +1,8 @@
-import {Service} from "typedi";
-import {DiscoverConsulDriver, genAssert, genLogger, http, IServiceNode, turtle} from "@khgame/turtle";
-import {LoginService} from "./loginService";
-import {ILoginRule} from "../constant/iLoginRule";
-import {forMs} from "kht/lib";
+import { Service } from "typedi";
+import { DiscoverConsulDriver, genAssert, genLogger, http, IServiceNode, turtle } from "@khgame/turtle";
+import { LoginService } from "./loginService";
+import { ILoginRule } from "../constant/iLoginRule";
+import { forMs } from "kht/lib";
 
 const deltaTime = 30000;
 
@@ -147,12 +147,7 @@ export class ServerService {
     // }
 
     public async chooseServer(webToken: string, serviceName: string) {
-        const uid = await this.loginService.getOnlineUIDByToken(webToken);
-
         const nodes = this.servers[serviceName];
-        this.assert.ok(nodes && Object.keys(nodes).length >= 0,
-            `cannot find service ${serviceName}`);
-
         let node: any = null;
         const now = Date.now();
         for (const id in nodes) {
@@ -165,19 +160,31 @@ export class ServerService {
             }
         }
         this.assert.ok(node, `cannot find available service ${serviceName}`);
-        this.users[uid] = {
-            serviceName: serviceName,
-            id: node.id
-        };
-        // todo post create sessionToken to game
-        const rsp = await http().post<any>(`http://${node.address}:${node.port}/api/v1/login/create_session`, {
-            uid
-        });
-        this.assert.ok(rsp && rsp.data && rsp.data.result, "server is error");
-        return {
-            address: node.address,
-            port: node.port,
-            token: rsp.data.result
-        };
+        this.assert.ok(nodes && Object.keys(nodes).length >= 0,
+            `cannot find service ${serviceName}`);
+
+        try {
+            const uid = await this.loginService.getOnlineUIDByToken(webToken);
+
+            this.users[uid] = {
+                serviceName: serviceName,
+                id: node.id
+            };
+            // todo post create sessionToken to game
+            const rsp = await http().post<any>(`http://${node.address}:${node.port}/api/v1/login/create_session`, {
+                uid
+            });
+            this.assert.ok(rsp && rsp.data && rsp.data.result, "server is error");
+            return {
+                address: node.address,
+                port: node.port,
+                token: rsp.data.result
+            };
+        } catch (e) {
+            return {
+                address: node.address,
+                port: node.port,
+            };
+        }
     }
 }
