@@ -59,8 +59,10 @@ export class ServerService {
     }
 
     public async refreshCache() {
+
         const serverLst = this.serverList;
 
+        this.log.debug(`refresh cache of ${serverLst}`);
         for (let i in serverLst) {
             const serviceName = serverLst[i];
             /** get all servers */
@@ -71,6 +73,7 @@ export class ServerService {
                 this.log.error(`get serviceNodes failed, error: ${e.message} stack: ${e.stack}`);
             }
             if (serviceNodes.length === 0) {
+                this.log.info(`cannot find instance of server ${serviceName}`);
                 continue;
             }
 
@@ -78,7 +81,6 @@ export class ServerService {
                 this.servers[serviceName][sn.id] = {
                     ...sn,
                     lastSyncTime: Date.now(),
-
                 };
                 http().get(`http://${sn.address}:${sn.port}/api/v1/login/online_counts`).then(ret => {
                     this.servers[serviceName][sn.id] = ret.data.data;
