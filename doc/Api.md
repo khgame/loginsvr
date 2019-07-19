@@ -70,6 +70,6 @@
   ```js
   {
     token: string,
-    ServiceName: string
+    service_name: string
   }
   ```

@@ -150,7 +150,9 @@ export class ServerService {
         const uid = await this.loginService.getOnlineUIDByToken(webToken);
 
         const nodes = this.servers[serviceName];
-        this.assert.ok(nodes && Object.keys(nodes).length > 0, `no service ${serviceName}`);
+        this.assert.ok(nodes && Object.keys(nodes).length >= 0,
+            `cannot find service ${serviceName}`);
+
         let node: any = null;
         const now = Date.now();
         for (const id in nodes) {
@@ -162,7 +164,7 @@ export class ServerService {
                 node = n;
             }
         }
-        this.assert.ok(node, `no service ${serviceName}`);
+        this.assert.ok(node, `cannot find available service ${serviceName}`);
         this.users[uid] = {
             serviceName: serviceName,
             id: node.id
