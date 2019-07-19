@@ -56,7 +56,7 @@ export class ServerService {
             await forMs(5000);
             try {
                 await this.refreshCache();
-            }catch(err) {
+            } catch (err) {
                 this.log.error(`ServerService.update is error: ${err.message}, stack: ${err.stack}`);
             }
         }
