@@ -37,7 +37,7 @@ const defaultConf = {
         }
     },
     rules: {
-        "renewal_time_span": 600,
+        renewal_time_span: 600,
         mail_option: {
             host: 'smtp.exmail.qq.com',
             port: 465,
@@ -47,7 +47,8 @@ const defaultConf = {
                 pass: 'Xiaoshadan1234',
             }
         } as IMailOption,
-        servers: [ 'AVAILABLE_SERVER_NAME' ]
+        servers: [ 'AVAILABLE_SERVER_NAME' ],
+        active_host: "http://172.16.25.181:9010"
     }
 };
 

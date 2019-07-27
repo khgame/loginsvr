@@ -22,10 +22,10 @@ export class LoginService {
         this.log.verbose("Service: instance created ");
     }
 
-    async renewalWebToken(webToken: string, l2id: string, time: number = turtle.rules<any>().renewal_time_span) {
+    async renewalWebToken(webToken: string, dgid: string, time: number = turtle.rules<any>().renewal_time_span) {
         const rkWebToken = LoginService.getRKWebToken(webToken);
-        this.log.info(`renewal Session ${rkWebToken} => ${l2id}`);
-        return await RedisDriver.inst.set(rkWebToken, l2id, "EX", time);
+        this.log.info(`renewal Session ${rkWebToken} => ${dgid}`);
+        return await RedisDriver.inst.set(rkWebToken, dgid, "EX", time);
     }
 
     async signInByPassport(passport: string, pwd: string, regInfo: IAccountRegInfo = {}) {
@@ -76,7 +76,11 @@ export class LoginService {
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
 
-        const url = `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
+        const url = turtle.rules<ILoginRule>().active_host ?
+            `${turtle.rules<ILoginRule>().active_host}/api/v1/login/validate_email/${redisKey}` :
+            `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
+
+
         this.log.info(`create webToken ${email} ${url}`);
 
         const html = `
@@ -164,7 +168,10 @@ export class LoginService {
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
 
-        const url = `${address}:${port}/api/v1/login/validate_find_pwd/${redisKey}`;
+        const url =
+            turtle.rules<ILoginRule>().frontend_host ?
+                `${turtle.rules<ILoginRule>().frontend_host}/?reset_pwd=${redisKey}` :
+                `${address}:${port}/?reset_pwd=${redisKey}`;
         this.log.info(`create webToken ${email} ${url}`);
 
         const html = `
@@ -173,7 +180,7 @@ export class LoginService {
     <strong style="color:white;font-size: 2rem;">你好</strong>
   </p>
   <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
-    <p style="margin: 0;">激活链接标题</p>
+    <p style="margin: 0;">找回密码</p>
     <a href="http://${url}" style="display: block; color:white;margin-top: 1rem;">激活链接: ${redisKey}</a>
   </div>
   <p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>
@@ -208,7 +215,7 @@ export class LoginService {
             email,
             password: old_password
         });
-        this.assert.ok(account, `pwd is error`);
+        this.assert.ok(account, `validate failed, old pwd is error`);
         md5 = crypto.createHash('md5');
         const new_password = md5.update(pwd).digest('hex');
         return await AccountModel.findOneAndUpdate({
@@ -218,14 +225,14 @@ export class LoginService {
 
     async getOnlineUIDByToken(webToken: string): Promise<string> {
         const rkWebToken = LoginService.getRKWebToken(webToken);
-        const l2id = await RedisDriver.inst.get(rkWebToken);
-        this.assert.ok(l2id, () => `get l2id by webToken <${webToken}> failed: cannot find this token`);
-        return l2id!;
+        const dgid = await RedisDriver.inst.get(rkWebToken);
+        this.assert.ok(dgid, () => `get dgid by webToken <${webToken}> failed: cannot find this token`);
+        return dgid!;
     }
 
     async getOnlineAccountInfo(webToken: string): Promise<IAccountDocument> {
-        const l2id = await this.getOnlineUIDByToken(webToken);
-        const account = await AccountHelper.getByUID(parseInt(l2id));
+        const dgid = await this.getOnlineUIDByToken(webToken);
+        const account = await AccountHelper.getByUID(parseInt(dgid));
         this.assert.ok(account, () => `get account by webToken <${webToken}> failed: this account does not exist.`);
         return account!;
     }
