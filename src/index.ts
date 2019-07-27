@@ -47,8 +47,7 @@ const defaultConf = {
                 pass: 'Xiaoshadan1234',
             }
         } as IMailOption,
-        servers: [ 'AVAILABLE_SERVER_NAME' ],
-        active_host: "http://172.16.25.181:9010"
+        servers: [ 'AVAILABLE_SERVER_NAME' ]
     }
 };
 
