@@ -1,6 +1,6 @@
 import * as mongoose from "mongoose";
-import {Document, Schema} from "mongoose";
-import {CounterHelper} from "./counter";
+import { Document, Schema } from "mongoose";
+import { CounterHelper } from "./counter";
 
 export enum AUTH_VISIT {
     NORMAL = 1,
@@ -49,15 +49,15 @@ export interface IAccountDocument extends Document {
 }
 
 const AccountSchema = new Schema({
-    _id: {type: Number, alias: "l2id"},
+    _id: { type: Number, alias: "l2id" },
 
     passport: String,
     email: String,
     phone: String,
     password: String,
 
-    auth_visit: {type: Number, enum: [1, 2, 3], default: 1},
-    auth_gm: {type: Number, enum: [0, 1, 2, 3], default: 1},
+    auth_visit: { type: Number, enum: [1, 2, 3], default: 1 },
+    auth_gm: { type: Number, enum: [0, 1, 2, 3], default: 1 },
 
     reg_info: {
         ip: String,
@@ -74,15 +74,19 @@ const AccountSchema = new Schema({
     create_at: Date,
 });
 
-AccountSchema.index({passport: 1});
-AccountSchema.index({phone: 1});
+AccountSchema.index({ passport: 1 });
+AccountSchema.index({ phone: 1 });
 
 AccountSchema.pre("save", async function (next) {
     const doc = this as IAccountDocument;
     if (doc.isNew) {
         const now = new Date();
         const value = await CounterHelper.incAndGet("l2id");
-        doc._id = value;
+        if (value === 1) {
+            doc._id = 10001001;
+        } else {
+            doc._id = 20000000 + value;
+        }
         doc.create_at = doc.create_at || now;
         doc.login_at = doc.login_at || now;
         doc.auth_visit = doc.auth_visit || AUTH_VISIT.NORMAL;
@@ -101,15 +105,15 @@ export const AccountModel = mongoose.model<IAccountDocument>("l2account", Accoun
 export class AccountHelper {
 
     static async getByUID(l2id: number): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({_id: l2id});
+        return await AccountModel.findOne({ _id: l2id });
     }
 
     static async getByPassport(passport: string): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({passport: passport});
+        return await AccountModel.findOne({ passport: passport });
     }
 
     static async getByEmail(email: string): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({email: email});
+        return await AccountModel.findOne({ email: email });
     }
 
 

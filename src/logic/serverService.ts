@@ -172,7 +172,7 @@ export class ServerService {
             };
             // todo post create sessionToken to game
             const rsp = await http().post<any>(`http://${node.address}:${node.port}/api/v1/login/create_session`, {
-                uid
+                uid: Number(uid)
             });
             this.assert.ok(rsp && rsp.data && rsp.data.result, "server is error");
             return {
