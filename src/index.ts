@@ -47,7 +47,7 @@ const defaultConf = {
                 pass: 'Xiaoshadan1234',
             }
         } as IMailOption,
-        servers: [ 'cryptoHeroes' ]
+        servers: [ 'crypto_heroes' ]
     }
 };
 

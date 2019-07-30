@@ -6,4 +6,5 @@ export interface ILoginRule {
     servers: string[];
     active_host?: string;
     frontend_host?: string;
+    validate_redirect?: string;
 }

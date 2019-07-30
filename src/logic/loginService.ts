@@ -262,6 +262,6 @@ export class LoginService {
             email: email,
             password: password,
         });
-        await account.save();
+        return await account.save();
     }
 }

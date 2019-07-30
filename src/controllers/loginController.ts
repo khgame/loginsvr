@@ -1,8 +1,10 @@
-import { API, Post, Body } from "./decorators";
-import { genAssert, genLogger } from "@khgame/turtle/lib";
-import { LoginService } from "../logic/loginService";
-import { IAccountDocument, IAccountRegInfo } from "../logic/model/account";
-import { Get, Param } from "routing-controllers";
+import {API, Post, Body} from "./decorators";
+import {genAssert, genLogger, turtle} from "@khgame/turtle/lib";
+import {LoginService} from "../logic/loginService";
+import {IAccountDocument, IAccountRegInfo} from "../logic/model/account";
+import {Ctx, Get, Param} from "routing-controllers";
+import {Context} from "koa";
+import {ILoginRule} from "../constant/iLoginRule";
 
 @API("/login")
 export class LoginController {
@@ -16,15 +18,19 @@ export class LoginController {
 
 
     @Get("/validate_email/:token")
-    public async validateEmail(@Param("token") token: string) {
-        return await this.loginServ.validateEmail(token);
+    public async validateEmail(@Param("token") token: string, @Ctx() ctx: Context) {
+        const account = await this.loginServ.validateEmail(token);
+        const redirect = turtle.rules<ILoginRule>().validate_redirect;
+        if (account && redirect) {
+            ctx.redirect(redirect);
+        }
     }
 
     @Post("/reset_pwd")
     public async resetPwd(@Body() body: {
         token: string, pwd: string
     }) {
-        const { token, pwd } = body;
+        const {token, pwd} = body;
         return await this.loginServ.resetPwd(token, pwd);
     }
 
@@ -40,13 +46,18 @@ export class LoginController {
         pwd: string, // password
         reg_info?: IAccountRegInfo
     }): Promise<{ token: string }> { // return webToken
-        const { type, identity, pwd, reg_info } = body;
+        const {type, identity, pwd, reg_info} = body;
         switch (type) {
-            case "passport": return await this.loginServ.signInByPassport(identity, pwd, reg_info);
-            case "email": return await this.loginServ.signInByEmail(identity, pwd, reg_info);
-            case "phone": return await this.loginServ.signInByPhone(identity, pwd, reg_info);
-            case "sign": return await this.loginServ.signInBySign(identity, pwd, reg_info);
-            default: break;
+            case "passport":
+                return await this.loginServ.signInByPassport(identity, pwd, reg_info);
+            case "email":
+                return await this.loginServ.signInByEmail(identity, pwd, reg_info);
+            case "phone":
+                return await this.loginServ.signInByPhone(identity, pwd, reg_info);
+            case "sign":
+                return await this.loginServ.signInBySign(identity, pwd, reg_info);
+            default:
+                break;
         }
         throw new Error(`sign in type <${type}> error`);
     }
@@ -57,7 +68,7 @@ export class LoginController {
         old_pwd: string, // passport, email, phone
         pwd: string
     }) {
-        const { email, old_pwd, pwd } = body;
+        const {email, old_pwd, pwd} = body;
         return await this.loginServ.changePwd(email, old_pwd, pwd);
     }
 
@@ -87,7 +98,7 @@ export class LoginController {
         passport: string,
         pwd: string // password
     }) {
-        const { passport, pwd } = body;
+        const {passport, pwd} = body;
         return await this.loginServ.loginByPassport(passport, pwd);
     }
 
@@ -96,7 +107,7 @@ export class LoginController {
         passport: string,
         pwd: string // password
     }) {
-        const { passport, pwd } = body;
+        const {passport, pwd} = body;
         return await this.loginServ.loginByEmail(passport, pwd);
     }
 
