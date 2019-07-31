@@ -35,10 +35,10 @@
   resolved "https://registry.npm.taobao.org/@khgame/one-line-call/download/@khgame/one-line-call-0.1.5.tgz#38a003458b1fe2c31da3fc1317f0be85cce914b9"
   integrity sha1-OKADRYsf4sMdo/wTF/C+hczpFLk=
 
-"@khgame/turtle@^0.0.56":
-  version "0.0.56"
-  resolved "https://registry.npm.taobao.org/@khgame/turtle/download/@khgame/turtle-0.0.56.tgz?cache=0&sync_timestamp=1564515565704&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40khgame%2Fturtle%2Fdownload%2F%40khgame%2Fturtle-0.0.56.tgz#a0190198bf12521191840d3441ba0a3574546272"
-  integrity sha1-oBkBmL8SUhGRhA00QboKNXRUYnI=
+"@khgame/turtle@^0.0.57":
+  version "0.0.57"
+  resolved "https://registry.npm.taobao.org/@khgame/turtle/download/@khgame/turtle-0.0.57.tgz#f7ccab787aa11af116f198f9aa383f36a2f482f9"
+  integrity sha1-98yreHqhGvEW8Zj5qjg/NqL0gvk=
   dependencies:
     "@khgame/jsonrpc" "^0.1.7"
     "@khgame/one-line-call" "^0.1.5"
