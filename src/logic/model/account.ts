@@ -82,7 +82,11 @@ AccountSchema.pre("save", async function (next) {
     if (doc.isNew) {
         const now = new Date();
         const value = await CounterHelper.incAndGet("l2id");
-        doc._id = 20000000 + value;
+        if (value === 1) {
+            doc._id = 10001001;
+        } else {
+            doc._id = 20000000 + value;
+        }
         doc.create_at = doc.create_at || now;
         doc.login_at = doc.login_at || now;
         doc.auth_visit = doc.auth_visit || AUTH_VISIT.NORMAL;
