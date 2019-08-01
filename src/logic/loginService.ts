@@ -76,25 +76,14 @@ export class LoginService {
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
 
-        const url = turtle.rules<ILoginRule>().active_host ?
-            `${turtle.rules<ILoginRule>().active_host}/api/v1/login/validate_email/${redisKey}` :
+        const url = turtle.rules<ILoginRule>().use_public_id ?
+            `${turtle.runtime.ip_public}:8000/api/v1/login/validate_email/${redisKey}` :
             `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
 
 
         this.log.info(`create webToken ${email} ${url}`);
 
-        const html = `
-<div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
-  <p style="margin: 0;">
-    <strong style="color:white;font-size: 2rem;">你好！</strong>
-  </p>
-  <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
-    <p style="margin: 0;">请点击以下链接完成激活：</p>
-    <a href="http://${url}" style="display: block; color:white;margin-top: 1rem;">激活链接：${redisKey}</a>
-  </div>
-  <!--<p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>-->
-</div>
-`;
+        const html = turtle.rules<ILoginRule>().login_html.replace("{url}", url).replace("{redisKey}", redisKey);
 
         try {
             await this.sendMail(email, "Validate Email", html);
@@ -169,23 +158,10 @@ export class LoginService {
         const port = turtle.runtime.port;
 
         const url =
-            turtle.rules<ILoginRule>().frontend_host ?
-                `${turtle.rules<ILoginRule>().frontend_host}/?reset_pwd=${redisKey}` :
-                `${address}:${port}/?reset_pwd=${redisKey}`;
+            `${turtle.rules<ILoginRule>().client_ip}/?reset_pwd=${redisKey}`;
         this.log.info(`create webToken ${email} ${url}`);
 
-        const html = `
-<div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
-  <p style="margin: 0;">
-    <strong style="color:white;font-size: 2rem;">你好！</strong>
-  </p>
-  <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
-    <p style="margin: 0;">请点击以下链接重设密码：</p>
-    <a href="http://${url}" style="display: block; color:white;margin-top: 1rem;">重设密码链接：${redisKey}</a>
-  </div>
-  <!--<p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>-->
-</div>
-`;
+        const html = turtle.rules<ILoginRule>().find_pwd_html.replace("{url}", url).replace("{redisKey}", redisKey);
 
         try {
             await this.sendMail(email, "Retrieve password", html);

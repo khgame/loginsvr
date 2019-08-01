@@ -9,6 +9,7 @@ const deltaTime = 30000;
 export interface IServer extends IServiceNode {
     lastSyncTime: number;
     userCount?: number;
+    ip_public?: string;
 }
 
 type Services = {
@@ -89,62 +90,16 @@ export class ServerService {
                     ...sn,
                     lastSyncTime: Date.now(),
                 };
+
                 http().get(`http://${sn.address}:${sn.port}/api/v1/login/online_counts`).then(ret => {
-                    this.servers[serviceName][sn.id].userCount = ret.data.result;
+                    this.servers[serviceName][sn.id].userCount = ret.data.result.count;
+                    this.servers[serviceName][sn.id].ip_public = ret.data.result.ip_public;
                 }).catch(err => {
                     this.log.warn(`get online_counts of server ${serviceName}:${sn.id} failed, error: ${err.message} stack: ${err.stack}`);
                 });
             });
         }
     }
-
-    // public async heartbeat(serviceName: string, id: string, userCount: number) {
-    //
-    //     const serverLst = this.serverList;
-    //
-    //     for (let i in serverLst) {
-    //         const serviceName = serverLst[i];
-    //         /** get all servers */
-    //         const serviceNodes = await DiscoverConsulDriver.inst.serviceNodes(serviceName);
-    //
-    //     }
-    //
-    //
-    //     if (serviceNodes.length === 0) {
-    //         return;
-    //     }
-    //
-    //     const node: any = {
-    //         exist: false
-    //     };
-    //
-    //     for (let i = 0; i < serviceNodes.length; i++) {
-    //         this.servers[serviceName];
-    //         const cnode = serviceNodes[i];
-    //         if (cnode.id === `${serviceName}:${id}`) {
-    //             node.exist = true;
-    //             node.address = cnode.address;
-    //             node.port = cnode.port;
-    //             break;
-    //         }
-    //     }
-    //
-    //     if (!node.exist) {
-    //         return;
-    //     }
-    //
-    //     if (!this.servers[serviceName]) {
-    //         this.servers[serviceName] = {};
-    //     }
-    //
-    //     this.servers[serviceName][id] = {
-    //         address: node.address,
-    //         port: node.port,
-    //         userCount: userCount,
-    //         lastSyncTime: Date.now(),
-    //         id
-    //     };
-    // }
 
     public async chooseServer(webToken: string, serviceName: string) {
         const nodes = this.servers[serviceName];
@@ -175,8 +130,9 @@ export class ServerService {
                 uid: Number(uid)
             });
             this.assert.ok(rsp && rsp.data && rsp.data.result, "server is error");
+            const use_public_ip = turtle.rules<ILoginRule>().use_public_id;
             return {
-                address: node.address,
+                address: use_public_ip ? node.ip_public : node.address,
                 port: node.port,
                 token: rsp.data.result
             };
