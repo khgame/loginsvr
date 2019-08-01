@@ -77,7 +77,7 @@ export class LoginService {
         const port = turtle.runtime.port;
 
         const url = turtle.rules<ILoginRule>().use_public_id ?
-            `${turtle.runtime.ip_public}:8000/api/v1/login/validate_email/${redisKey}` :
+            `${turtle.runtime.ip_public}:${port}/api/v1/login/validate_email/${redisKey}` :
             `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
 
 
