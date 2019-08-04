@@ -32,6 +32,16 @@ export function readTemplate(
 
     if (!ret) { return null; }
 
+    return applyTemplate(ret, replace);
+}
+
+export function applyTemplate(
+    contents: string,
+    replace: Array<{ from: string | RegExp, to: string | (() => string) }>
+): string | null {
+
+    let ret = contents;
+
     for (let iRep in replace) {
         const replacer = replace[iRep];
         ret = ret.replace(
@@ -47,5 +57,6 @@ export function readTemplate(
             typeof replacer.to === "string" ? replacer.to : replacer.to()
         );
     }
+
     return ret;
 }

@@ -1,9 +1,11 @@
-import { Service } from "typedi";
+import {Service} from "typedi";
 import * as crypto from "crypto";
-import { AccountHelper, AccountModel, IAccountDocument, IAccountLoginInfo, IAccountRegInfo } from "./model/account";
-import { genAssert, genLogger, getRedisKey, RedisDriver, turtle, DiscoverConsulDriver } from "@khgame/turtle/lib";
-import { mail } from "@khgame/turtle/lib/utils/sendMail";
-import { ILoginRule } from "../constant/iLoginRule";
+import {AccountHelper, AccountModel, IAccountDocument, IAccountLoginInfo, IAccountRegInfo} from "./model/account";
+import {genAssert, genLogger, getRedisKey, RedisDriver, turtle, DiscoverConsulDriver} from "@khgame/turtle/lib";
+import {mail} from "@khgame/turtle/lib/utils/sendMail";
+import {ILoginRule} from "../constant/iLoginRule";
+import {applyTemplate, readTemplate} from "./util/file";
+import {ERROR_CODE} from "./const";
 
 @Service()
 export class LoginService {
@@ -58,7 +60,7 @@ export class LoginService {
         this.assert.ok(pwd, () => `sign in by email ${email} failed, the pwd cannot be empty.`);
         this.assert.ok(typeof pwd === "string", () => `sign in by email ${email} failed, the pwd should be a string.`);
 
-        const emailOrg = await AccountModel.findOne({ email });
+        const emailOrg = await AccountModel.findOne({email});
         this.assert.ok(!emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
 
 
@@ -83,24 +85,30 @@ export class LoginService {
 
         this.log.info(`create webToken ${email} ${url}`);
 
-        const html = turtle.rules<ILoginRule>().login_html.replace("{url}", url).replace("{redisKey}", redisKey);
+        const html = applyTemplate(turtle.rules<ILoginRule>().login_html, [
+            {from: /{url}/, to: url},
+            {from: /{redisKey}/, to: redisKey},
+        ]);
+        this.assert.cok(html, ERROR_CODE.TemplateLoadingFailed,
+            () => `sign in by email failed: cannot find the email template.`
+        );
 
         try {
-            await this.sendMail(email, "Validate Email", html);
+            await this.sendMailHtml(email, "Validate Email", html!);
         } catch (e) {
             this.log.error(`sign in by email ${email} failed, send email error: ${e.message}, stack: ${e.stack}`);
             throw e;
         }
-        await RedisDriver.inst.set(redisKey, JSON.stringify({ email, password }), "EX", 300);
-        return { token: url };
+        await RedisDriver.inst.set(redisKey, JSON.stringify({email, password}), "EX", 300);
+        return {token: url};
     }
 
     async signInByPhone(phone: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
-        return { token: "" };
+        return {token: ""};
     }
 
     async signInBySign(sign: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
-        return { token: "" };
+        return {token: ""};
     }
 
     async loginByPassport(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
@@ -146,7 +154,7 @@ export class LoginService {
     async findPassword(email: string) {
         this.assert.ok(email, () => `sign in by email failed, the email cannot be empty.`);
 
-        const emailOrg = await AccountModel.findOne({ email });
+        const emailOrg = await AccountModel.findOne({email});
         this.assert.ok(emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
 
         const md5 = crypto.createHash('md5');
@@ -161,16 +169,22 @@ export class LoginService {
             `${turtle.rules<ILoginRule>().client_ip}/?reset_pwd=${redisKey}`;
         this.log.info(`create webToken ${email} ${url}`);
 
-        const html = turtle.rules<ILoginRule>().find_pwd_html.replace("{url}", url).replace("{redisKey}", redisKey);
+        const html = applyTemplate(turtle.rules<ILoginRule>().find_pwd_html, [
+            {from: /{url}/, to: url},
+            {from: /{redisKey}/, to: redisKey},
+        ]);
+        this.assert.cok(html, ERROR_CODE.TemplateLoadingFailed,
+            () => `find password by email failed: cannot find the email template.`
+        );
 
         try {
-            await this.sendMail(email, "Retrieve password", html);
+            await this.sendMailHtml(email, "Retrieve password", html!);
         } catch (e) {
             this.log.error(`sign in by email ${email} failed, send email error: ${e.message}, stack: ${e.stack}`);
             throw e;
         }
         await RedisDriver.inst.set(redisKey, email, "EX", 300);
-        return { token: url };
+        return {token: url};
     }
 
     async resetPwd(token: string, pwd: string) {
@@ -180,7 +194,7 @@ export class LoginService {
         let md5 = crypto.createHash('md5');
         const password = md5.update(pwd).digest('hex');
 
-        const account = await AccountModel.findOneAndUpdate({ email }, { $set: { password } }, { new: true });
+        const account = await AccountModel.findOneAndUpdate({email}, {$set: {password}}, {new: true});
         return account;
     }
 
@@ -196,7 +210,7 @@ export class LoginService {
         const new_password = md5.update(pwd).digest('hex');
         return await AccountModel.findOneAndUpdate({
             email, password: old_password
-        }, { $set: { password: new_password } }, { new: true });
+        }, {$set: {password: new_password}}, {new: true});
     }
 
     async getOnlineUIDByToken(webToken: string): Promise<string> {
@@ -213,7 +227,7 @@ export class LoginService {
         return account!;
     }
 
-    async sendMail(toEmail: string, subject: string, content: string) {
+    async sendMailHtml(toEmail: string, subject: string, content: string) {
         const email = turtle.rules<ILoginRule>().mail_option.auth.user;
         const indAt = email.indexOf("@") + 1;
         this.assert.ok(indAt >= 0, `send mail failed, email ${email} format error`);
@@ -231,7 +245,7 @@ export class LoginService {
         const data = await RedisDriver.inst.get(token);
         this.assert.ok(data, `${token} is invalid`);
 
-        const { email, password } = JSON.parse(data!);
+        const {email, password} = JSON.parse(data!);
         this.assert.ok(email && password, `${token} is invalid`);
 
         const account = new AccountModel({
