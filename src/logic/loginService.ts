@@ -78,7 +78,10 @@ export class LoginService {
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
 
-        const url = `${turtle.rules<ILoginRule>().active_host || (address + ":" + port)}/api/v1/login/validate_email/${redisKey}`;
+        const url = `${
+        turtle.rules<ILoginRule>().active_host ||
+        ("http://" + address + ":" + port + "/api/v1/login/validate_email/")
+            }${redisKey}`;
         this.assert.cok(url, ERROR_CODE.ConfigError, `sign in by email: cannot create url`);
 
         this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
