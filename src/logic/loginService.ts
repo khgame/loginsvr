@@ -78,14 +78,12 @@ export class LoginService {
         const address = turtle.runtime.ip;
         const port = turtle.runtime.port;
 
-        const url = turtle.rules<ILoginRule>().use_public_id ?
-            `${turtle.runtime.ip_public}:${port}/api/v1/login/validate_email/${redisKey}` :
-            `${address}:${port}/api/v1/login/validate_email/${redisKey}`;
+        const url = `${turtle.rules<ILoginRule>().active_host || (address + ":" + port)}/api/v1/login/validate_email/${redisKey}`;
+        this.assert.cok(url, ERROR_CODE.ConfigError, `sign in by email: cannot create url`);
 
+        this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
 
-        this.log.info(`create webToken ${email} ${url}`);
-
-        const html = applyTemplate(turtle.rules<ILoginRule>().login_html, [
+        const html = applyTemplate(turtle.rules<ILoginRule>().sign_in_tpl, [
             {from: /{url}/, to: url},
             {from: /{redisKey}/, to: redisKey},
         ]);
@@ -162,14 +160,14 @@ export class LoginService {
 
         const redisKey = getRedisKey("email_find_pwd", webToken);
 
-        const address = turtle.runtime.ip;
-        const port = turtle.runtime.port;
+        const url = `${turtle.rules<ILoginRule>().frontend_host}/?reset_pwd=${redisKey}`;
+        this.assert.cok(url, ERROR_CODE.ConfigError, `find password: cannot create url`);
 
-        const url =
-            `${turtle.rules<ILoginRule>().client_ip}/?reset_pwd=${redisKey}`;
+        this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
+
         this.log.info(`create webToken ${email} ${url}`);
 
-        const html = applyTemplate(turtle.rules<ILoginRule>().find_pwd_html, [
+        const html = applyTemplate(turtle.rules<ILoginRule>().find_pwd_tpl, [
             {from: /{url}/, to: url},
             {from: /{redisKey}/, to: redisKey},
         ]);

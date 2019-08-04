@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { CommandLineApp, RedisDriver } from "@khgame/turtle/lib";
+import { CommandLineApp, RedisDriver } from "@khgame/turtle";
 import { Api } from "./api/api";
 
 const defaultConf = {
@@ -39,41 +39,42 @@ const defaultConf = {
     rules: {
         renewal_time_span: 600,
         mail_option: {
-            host: 'smtp.exmail.qq.com',
+            host: '',
             port: 465,
             secureConnection: true,
             auth: {
-                user: 'auto@tonarts.org',
-                pass: 'Xiaoshadan1234',
+                user: '',
+                pass: '',
             }
         } as IMailOption,
-        servers: ['cryptoHeroes'],
-        use_public_id: false,
-        login_html: `
+        servers: ['crypto_heroes'],
+        active_host: "",
+        frontend_host: "",
+        validate_redirect: "",
+        sign_in_tpl: `
         <div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
           <p style="margin: 0;">
             <strong style="color:white;font-size: 2rem;">你好！</strong>
           </p>
           <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
             <p style="margin: 0;">请点击以下链接完成激活：</p>
-            <a href="http://{url}" style="display: block; color:white;margin-top: 1rem;">激活链接：{redisKey}</a>
+            <a href="{url}" style="display: block; color:white;margin-top: 1rem;">激活链接：{redisKey}</a>
           </div>
           <!--<p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>-->
         </div>
         `,
-        find_pwd_html: `
+        find_pwd_tpl: `
         <div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
           <p style="margin: 0;">
             <strong style="color:white;font-size: 2rem;">你好！</strong>
           </p>
           <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
             <p style="margin: 0;">请点击以下链接重设密码：</p>
-            <a href="http://{url}" style="display: block; color:white;margin-top: 1rem;">重设密码链接：{redisKey}</a>
+            <a href="{url}" style="display: block; color:white;margin-top: 1rem;">重设密码链接：{redisKey}</a>
           </div>
           <!--<p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>-->
         </div>
-        `,
-        client_ip: "10.1.100.87:5000/bin"
+        `
     }
 };
 
