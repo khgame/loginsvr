@@ -19,7 +19,7 @@ export class CoreController {
             node_env: process.env.NODE_ENV || "__UNDEFINED__(development)",
             runningRequest: turtle.api.runningRequest,
             version: process.env.npm_package_version,
-            conf: turtle.conf
+            // conf: turtle.conf
         }, null, 4);
     }
 }
