@@ -1,17 +1,28 @@
 import {Service} from "typedi";
 import * as crypto from "crypto";
 import {AccountHelper, AccountModel, IAccountDocument, IAccountLoginInfo, IAccountRegInfo} from "./model/account";
-import {genAssert, genLogger, getRedisKey, RedisDriver, turtle, DiscoverConsulDriver} from "@khgame/turtle/lib";
+import {
+    genAssert,
+    genLogger,
+    getRedisKey,
+    RedisDriver,
+    turtle,
+    DiscoverConsulDriver,
+    genMemCache
+} from "@khgame/turtle/lib";
 import {mail} from "@khgame/turtle/lib/utils/sendMail";
 import {ILoginRule} from "../constant/iLoginRule";
 import {applyTemplate, readTemplate} from "./util/file";
 import {ERROR_CODE} from "./const";
+import * as fs from "fs-extra";
+import * as Path from "path";
 
 @Service()
 export class LoginService {
 
     log = genLogger('s:login');
     assert = genAssert('s:login');
+    tplCache = genMemCache();
 
     static inst: LoginService;
 
@@ -86,7 +97,16 @@ export class LoginService {
 
         this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
 
-        const html = applyTemplate(turtle.rules<ILoginRule>().sign_in_tpl, [
+        const rule = turtle.rules<ILoginRule>();
+        const pathOfSignInEmailTpl = Path.isAbsolute(rule.sign_in_tpl) ? rule.sign_in_tpl : Path.resolve(process.cwd(), rule.sign_in_tpl);
+
+        const tpl: string = await this.tplCache.getLoosingCache(pathOfSignInEmailTpl, async (key: string) => {
+            const exist = fs.existsSync(key);
+            this.assert.cok(exist, ERROR_CODE.ConfigError, () => `sign in by email failed: template file ${pathOfSignInEmailTpl} are not exist`);
+            return fs.readFileSync(pathOfSignInEmailTpl, {encoding: "utf-8"});
+        }, 60);
+
+        const html = applyTemplate(tpl, [
             {from: /{url}/, to: url},
             {from: /{redisKey}/, to: redisKey},
         ]);
@@ -170,7 +190,16 @@ export class LoginService {
 
         this.log.info(`create webToken ${email} ${url}`);
 
-        const html = applyTemplate(turtle.rules<ILoginRule>().find_pwd_tpl, [
+        const rule = turtle.rules<ILoginRule>();
+        const pathOfFindPwdEmailTpl = Path.isAbsolute(rule.find_pwd_tpl) ? rule.find_pwd_tpl : Path.resolve(process.cwd(), rule.find_pwd_tpl);
+
+        const tpl: string = await this.tplCache.getLoosingCache(pathOfFindPwdEmailTpl, async (key: string) => {
+            const exist = fs.existsSync(key);
+            this.assert.cok(exist, ERROR_CODE.ConfigError, () => `find password by email failed: template file ${pathOfFindPwdEmailTpl} are not exist`);
+            return fs.readFileSync(pathOfFindPwdEmailTpl, {encoding: "utf-8"});
+        }, 60);
+
+        const html = applyTemplate(tpl, [
             {from: /{url}/, to: url},
             {from: /{redisKey}/, to: redisKey},
         ]);

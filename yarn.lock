@@ -151,10 +151,10 @@
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
 
-"@types/fs-extra@^5.0.5":
-  version "5.0.5"
-  resolved "http://registry.npm.taobao.org/@types/fs-extra/download/@types/fs-extra-5.0.5.tgz#080d90a792f3fa2c5559eb44bd8ef840aae9104b"
-  integrity sha1-CA2Qp5Lz+ixVWetEvY74QKrpEEs=
+"@types/fs-extra@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.npm.taobao.org/@types/fs-extra/download/@types/fs-extra-8.0.0.tgz#d3e2c313ca29f95059f198dd60d1f774642d4b25"
+  integrity sha1-0+LDE8op+VBZ8ZjdYNH3dGQtSyU=
   dependencies:
     "@types/node" "*"
 

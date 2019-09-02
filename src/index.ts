@@ -51,30 +51,8 @@ const defaultConf = {
         active_host: "",
         frontend_host: "",
         validate_redirect: "",
-        sign_in_tpl: `
-        <div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
-          <p style="margin: 0;">
-            <strong style="color:white;font-size: 2rem;">你好！</strong>
-          </p>
-          <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
-            <p style="margin: 0;">请点击以下链接完成激活：</p>
-            <a href="{url}" style="display: block; color:white;margin-top: 1rem;">激活链接：{redisKey}</a>
-          </div>
-          <!--<p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>-->
-        </div>
-        `,
-        find_pwd_tpl: `
-        <div style="width: 800px;background-color: black;padding: 50px;margin: 0;">
-          <p style="margin: 0;">
-            <strong style="color:white;font-size: 2rem;">你好！</strong>
-          </p>
-          <div style="color:white;font-size:1rem;padding: 2rem;background-color: #e48600;width:400px;margin-top: 30px;" >
-            <p style="margin: 0;">请点击以下链接重设密码：</p>
-            <a href="{url}" style="display: block; color:white;margin-top: 1rem;">重设密码链接：{redisKey}</a>
-          </div>
-          <!--<p style="color:white;margin: 0;margin-top: 2rem;">邮件内容描述</p>-->
-        </div>
-        `
+        sign_in_tpl: "./tpl/sign_in.html",
+        find_pwd_tpl: "./tpl/find_pwd.html",
     }
 };
 
