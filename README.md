@@ -93,7 +93,53 @@ After installation, you should got a config file like this:
 }
 ```
 
-Updates these config entrys, replace then with your own setting.
+Updates these config entries, replace then with your own setting.
+
+structure of "rules":
+
+```json
+export interface ILoginRule {
+
+    renewal_time_span: number;
+
+    mail_option: IMailOption;
+
+    /**
+     * name of servers
+     */
+    servers: string[];
+
+    /**
+     * url for usr active, e.p. http://www.login-svr.com:11801/
+     */
+    active_host?: string;
+
+    /**
+     * url for usr change pwd, e.p. http://game.cryptoheroes.co/
+     */
+    frontend_host?: string;
+
+    /**
+     * url for login redirection, e.p. https://www.cryptoheroes.co/
+     */
+    validate_redirect?: string;
+
+    /**
+     * determine which ip should be used when select server
+     */
+    use_public_id: boolean;
+
+    /**
+     * template page of sign in
+     */
+    sign_in_tpl: string;
+
+    /**
+     * template page of find pwd
+     */
+    find_pwd_tpl: string;
+}
+```
 
 > for more information, you can check this document: [Configuration](./doc/Configuration.md)
 
@@ -109,7 +155,7 @@ Alternatively, there are another ways to start up your login server.
 1. `kh-loginsvr start -p` will start loginsvr with NODE_ENV=production, and the default config to search will be `loginSvr.production.json`.
 2. `kh-loginsvr start -c my.awwwwsome.config.json` will start loginsvr with specified config file.
 
-> for more information, you can use the command `kh-loginsvr start -h`  
+> for more information, you can use the command `kh-loginsvr start -h`
 
 ## API usage
 

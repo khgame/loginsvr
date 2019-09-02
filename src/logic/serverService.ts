@@ -84,18 +84,18 @@ export class ServerService {
                 continue;
             }
 
-            serviceNodes.forEach(sn => {
+            serviceNodes.forEach(serviceNode => {
                 this.servers[serviceName] = this.servers[serviceName] || {};
-                this.servers[serviceName][sn.id] = {
-                    ...sn,
+                this.servers[serviceName][serviceNode.id] = {
+                    ...serviceNode,
                     lastSyncTime: Date.now(),
                 };
 
-                http().get(`http://${sn.address}:${sn.port}/api/v1/login/online_counts`).then(ret => {
-                    this.servers[serviceName][sn.id].userCount = ret.data.result.count;
-                    this.servers[serviceName][sn.id].ip_public = ret.data.result.ip_public;
+                http().get(`http://${serviceNode.address}:${serviceNode.port}/api/v1/login/online_counts`).then(ret => {
+                    this.servers[serviceName][serviceNode.id].userCount = ret.data.result.count;
+                    this.servers[serviceName][serviceNode.id].ip_public = ret.data.result.ip_public;
                 }).catch(err => {
-                    this.log.warn(`get online_counts of server ${serviceName}:${sn.id} failed, error: ${err.message} stack: ${err.stack}`);
+                    this.log.warn(`get online_counts of server ${serviceName}:${serviceNode.id} failed, error: ${err.message} stack: ${err.stack}`);
                 });
             });
         }

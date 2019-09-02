@@ -6,6 +6,9 @@ export interface ILoginRule {
 
     mail_option: IMailOption;
 
+    /**
+     * name of all supported servers witch are provided by service discovery
+     */
     servers: string[];
 
     /**
