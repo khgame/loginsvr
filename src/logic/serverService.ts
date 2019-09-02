@@ -125,7 +125,7 @@ export class ServerService {
                 serviceName: serviceName,
                 id: node.id
             };
-            // todo post create sessionToken to game
+            // todo: post create sessionToken to game ?
             const rsp = await http().post<any>(`http://${node.address}:${node.port}/api/v1/login/create_session`, {
                 uid: Number(uid)
             });
