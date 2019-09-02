@@ -51,13 +51,15 @@ const defaultConf = {
         active_host: "",
         frontend_host: "",
         validate_redirect: "",
+        use_public_id: true,
         sign_in_tpl: "./tpl/sign_in.html",
         find_pwd_tpl: "./tpl/find_pwd.html",
-    }
+    } as ILoginRule
 };
 
 import * as controllers from "./controllers";
 import { IMailOption } from "@khgame/turtle/lib/utils/sendMail";
+import {ILoginRule} from "./constant/iLoginRule";
 
 const cli = new CommandLineApp(
     "loginSvr",

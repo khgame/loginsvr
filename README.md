@@ -105,22 +105,22 @@ export interface ILoginRule {
     mail_option: IMailOption;
 
     /**
-     * name of servers
+     * name of all supported servers witch are provided by service discovery
      */
     servers: string[];
 
     /**
-     * url for usr active, e.p. http://www.login-svr.com:11801/
+     * url for usr active, only used in sign-in email, e.p. http://www.login-svr.com:11801/
      */
     active_host?: string;
 
     /**
-     * url for usr change pwd, e.p. http://game.cryptoheroes.co/
+     * url for usr change pwd, only used in change-pwd email, e.p. http://game.cryptoheroes.co/
      */
     frontend_host?: string;
 
     /**
-     * url for login redirection, e.p. https://www.cryptoheroes.co/
+     * url for redirection after url in validate email clicked, e.p. https://www.cryptoheroes.co/
      */
     validate_redirect?: string;
 
@@ -139,6 +139,7 @@ export interface ILoginRule {
      */
     find_pwd_tpl: string;
 }
+
 ```
 
 > for more information, you can check this document: [Configuration](./doc/Configuration.md)

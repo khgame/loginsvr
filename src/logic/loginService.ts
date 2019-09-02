@@ -86,18 +86,15 @@ export class LoginService {
 
         // const self = await DiscoverConsulDriver.inst.getSelf();
         // this.assert.ok(self, "self is not exist");
-        const address = turtle.runtime.ip;
+        const rule = turtle.rules<ILoginRule>();
+        const address = rule.use_public_id ? turtle.runtime.ip_public : turtle.runtime.ip;
         const port = turtle.runtime.port;
 
-        const url = `${
-        turtle.rules<ILoginRule>().active_host ||
-        ("http://" + address + ":" + port + "/api/v1/login/validate_email/")
-            }${redisKey}`;
-        this.assert.cok(url, ERROR_CODE.ConfigError, `sign in by email: cannot create url`);
+        const url = `${rule.active_host || ("http://" + address + ":" + port + "/api/v1/login/validate_email/")}${redisKey}`;
+        this.assert.cok(url, ERROR_CODE.ConfigError, () => `sign in by email: cannot create url by ${rule.active_host}`);
 
         this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
 
-        const rule = turtle.rules<ILoginRule>();
         const pathOfSignInEmailTpl = Path.isAbsolute(rule.sign_in_tpl) ? rule.sign_in_tpl : Path.resolve(process.cwd(), rule.sign_in_tpl);
 
         const tpl: string = await this.tplCache.getLoosingCache(pathOfSignInEmailTpl, async (key: string) => {
@@ -183,14 +180,14 @@ export class LoginService {
 
         const redisKey = getRedisKey("email_find_pwd", webToken);
 
-        const url = `${turtle.rules<ILoginRule>().frontend_host}/?reset_pwd=${redisKey}`;
+        const rule = turtle.rules<ILoginRule>();
+        const url = `${rule.frontend_host}/?reset_pwd=${redisKey}`;
         this.assert.cok(url, ERROR_CODE.ConfigError, `find password: cannot create url`);
 
         this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
 
         this.log.info(`create webToken ${email} ${url}`);
 
-        const rule = turtle.rules<ILoginRule>();
         const pathOfFindPwdEmailTpl = Path.isAbsolute(rule.find_pwd_tpl) ? rule.find_pwd_tpl : Path.resolve(process.cwd(), rule.find_pwd_tpl);
 
         const tpl: string = await this.tplCache.getLoosingCache(pathOfFindPwdEmailTpl, async (key: string) => {
