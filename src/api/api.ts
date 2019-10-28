@@ -89,7 +89,7 @@ export class Api implements IApi {
                 ctx.status = 200;
                 const msgCode = Number(error.message || error);
                 ctx.body = {
-                    statusCode: code,
+                    status: code,
                     message: isNaN(msgCode) ? (error.message || error) : msgCode,
                     stack: error.stack
                 };
