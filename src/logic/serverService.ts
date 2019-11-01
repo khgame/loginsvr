@@ -126,17 +126,22 @@ export class ServerService {
                 id: node.id
             };
             // todo: post create sessionToken to game ?
-            const rsp = await http().post<any>(`http://${node.address}:${node.port}/api/v1/login/create_session`, {
+            const urlCreateSession = `http://${node.address}:${node.port}/api/v1/login/create_session`;
+            this.log.info(`try require session : ${urlCreateSession}`)
+            const rsp = await http().post<any>(urlCreateSession, {
                 uid: Number(uid)
             });
             this.assert.ok(rsp && rsp.data && rsp.data.result, "server is error");
             const use_public_ip = turtle.rules<ILoginRule>().use_public_id;
+            const token = rsp.data.result;
+            this.log.info(`require session : ${token}`)
             return {
                 address: use_public_ip ? node.ip_public : node.address,
                 port: node.port,
-                token: rsp.data.result
+                token
             };
         } catch (e) {
+            this.log.error(`require session failed: ${e.message}`);
             return {
                 address: node.address,
                 port: node.port,
