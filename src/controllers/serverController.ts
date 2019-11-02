@@ -1,7 +1,7 @@
 import { API, Post, Body } from "./decorators";
 import { genAssert, genLogger } from "@khgame/turtle/lib";
 import { ServerService } from "../logic/serverService";
-import {Get} from "routing-controllers";
+import {Get, Param} from "routing-controllers";
 
 @API("/server")
 export class ServerController {
@@ -14,9 +14,9 @@ export class ServerController {
     ) {
     }
 
-    @Get("/list")
-    public async list() {
-        return this.serverServ.serverList;
+    @Get("/list/:service_name")
+    public async list(@Param("service_name") service_name: string) {
+        return this.serverServ.list(service_name);
     }
 
     @Get("/status")
@@ -24,13 +24,13 @@ export class ServerController {
         return this.serverServ.serverStatus;
     }
 
-    @Post("/choose")
-    public async chooseService(@Body() body: {
+    @Post("/choose/:service_name")
+    public async chooseService(@Param("service_name") service_name: string, @Body() body: {
         token: string,
-        service_name: string
+        server_id: string
     }) {
-        const { token, service_name } = body;
-        return await this.serverServ.chooseServer(token, service_name);
+        const { token, server_id } = body;
+        return await this.serverServ.chooseServer(token, service_name, server_id);
     }
 
     // @Post("/validate_token")

@@ -2,14 +2,11 @@ import { IMailOption } from "@khgame/turtle/lib/utils/sendMail";
 
 export interface ILoginRule {
 
+    admin_token: string;
+
     renewal_time_span: number;
 
     mail_option: IMailOption;
-
-    /**
-     * name of all supported servers witch are provided by service discovery
-     */
-    servers: string[];
 
     /**
      * url for usr active, only used in sign-in email, e.p. http://www.login-svr.com:11801/

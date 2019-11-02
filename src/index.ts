@@ -37,6 +37,7 @@ const defaultConf = {
         }
     },
     rules: {
+        admin_token: "FILL_THIS_FILED_WITH_RANDOM_STRING",
         renewal_time_span: 600,
         mail_option: {
             host: '',
@@ -47,10 +48,9 @@ const defaultConf = {
                 pass: '',
             }
         } as IMailOption,
-        servers: ['crypto_heroes'],
         active_host: "",
         frontend_host: "",
-        validate_redirect: "",
+        validate_redirect: "https://www.github.com/bagaking",
         use_public_id: true,
         sign_in_tpl: "./tpl/sign_in.html",
         find_pwd_tpl: "./tpl/find_pwd.html",

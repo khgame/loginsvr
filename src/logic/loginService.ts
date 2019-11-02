@@ -16,6 +16,7 @@ import {applyTemplate, readTemplate} from "./util/file";
 import {ERROR_CODE} from "./const";
 import * as fs from "fs-extra";
 import * as Path from "path";
+import {DGID} from "dgip-ts";
 
 @Service()
 export class LoginService {
@@ -35,7 +36,7 @@ export class LoginService {
         this.log.verbose("Service: instance created ");
     }
 
-    async renewalWebToken(webToken: string, dgid: string, time: number = turtle.rules<any>().renewal_time_span) {
+    async renewalWebToken(webToken: string, dgid: DGID, time: number = turtle.rules<any>().renewal_time_span) {
         const rkWebToken = LoginService.getRKWebToken(webToken);
         this.log.info(`renewal Session ${rkWebToken} => ${dgid}`);
         return await RedisDriver.inst.set(rkWebToken, dgid, "EX", time);
@@ -58,7 +59,7 @@ export class LoginService {
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account._id}:${Math.random()}`).digest('hex');
 
-        await this.renewalWebToken(webToken, account._id.toString());
+        await this.renewalWebToken(webToken, account._id);
 
         return {
             token: webToken,
@@ -111,13 +112,13 @@ export class LoginService {
             () => `sign in by email failed: cannot find the email template.`
         );
 
+        await RedisDriver.inst.set(redisKey, JSON.stringify({email, password}), "EX", 300);
         try {
             await this.sendMailHtml(email, "Validate Email", html!);
         } catch (e) {
             this.log.error(`sign in by email ${email} failed, send email error: ${e.message}, stack: ${e.stack}`);
             throw e;
         }
-        await RedisDriver.inst.set(redisKey, JSON.stringify({email, password}), "EX", 300);
         return {token: url};
     }
 
@@ -141,7 +142,7 @@ export class LoginService {
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
 
-        await this.renewalWebToken(webToken, account!._id.toString());
+        await this.renewalWebToken(webToken, account!._id);
         return {
             token: webToken,
             account: account,
@@ -161,7 +162,7 @@ export class LoginService {
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
 
-        await this.renewalWebToken(webToken, account!._id.toString());
+        await this.renewalWebToken(webToken, account!._id);
         return {
             token: webToken,
             account: account,

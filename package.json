@@ -26,9 +26,10 @@
   },
   "homepage": "https://github.com/khgame/loginsvr#readme",
   "dependencies": {
-    "@khgame/turtle": "^0.0.88",
+    "@khgame/turtle": "^0.0.100",
     "axios": "^0.19.0",
     "consul": "^0.34.1",
+    "dgip-ts": "^0.1.8",
     "fs-extra": "^8.1.0",
     "get-port": "^5.0.0",
     "ioredis": "^4.9.0",

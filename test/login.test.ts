@@ -2,7 +2,7 @@
 // import * as Path from "path";
 //
 // import {spawn, exec, ChildProcess} from 'child_process';
-// import {getValidatorInfo, initServices, validate, waitForValidatorAlive} from "../src/logic/servers";
+// import {getValidatorInfo, initServices, validate, waitForValidatorAlive} from "../src/logic/cachedServices";
 // import {forMs} from "kht";
 // import {createReq} from "./createReq";
 // import {forCondition} from "kht";
