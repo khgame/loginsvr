@@ -11,9 +11,9 @@ import {
     genMemCache
 } from "@khgame/turtle/lib";
 import {mail} from "@khgame/turtle/lib/utils/sendMail";
-import {ILoginRule} from "../iLoginRule";
+import {ILoginRule} from "../constants/iRule";
 import {applyTemplate, readTemplate} from "./util/file";
-import {ERROR_CODE} from "./const";
+import {ERROR_CODE} from "../constants/errorCode";
 import * as fs from "fs-extra";
 import * as Path from "path";
 import {DGID} from "dgip-ts";

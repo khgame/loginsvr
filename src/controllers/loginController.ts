@@ -4,7 +4,7 @@ import {LoginService} from "../services/loginService";
 import {IAccountDocument, IAccountRegInfo} from "../services/model/account";
 import {Ctx, Get, Param} from "routing-controllers";
 import {Context} from "koa";
-import {ILoginRule} from "../iLoginRule";
+import {ILoginRule} from "../constants/iRule";
 
 @API("/login")
 export class LoginController {

@@ -1,7 +1,7 @@
 import {API, Post, Body} from "./decorators";
 import {genAssert, genLogger, turtle} from "@khgame/turtle/lib";
 import {Get, Param} from "routing-controllers";
-import {ILoginRule} from "../iLoginRule";
+import {ILoginRule} from "../constants/iRule";
 import {GameHelper} from "../services/model/game";
 import {DGID} from "dgip-ts";
 

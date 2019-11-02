@@ -2,7 +2,7 @@
   "name": "@khgame/loginsvr",
   "version": "0.2.7",
   "description": "",
-  "main": "bin/index.js",
+  "main": "bin/export.js",
   "bin": {
     "loginsvr": "bin/index.js"
   },

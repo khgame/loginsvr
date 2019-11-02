@@ -1,10 +1,11 @@
 import {Service} from "typedi";
 import {DiscoverConsulDriver, genAssert, genLogger, http, IServiceNode, turtle, Crypto} from "@khgame/turtle";
 import {LoginService} from "./loginService";
-import {ILoginRule} from "../iLoginRule";
+import {ILoginRule} from "../constants/iRule";
 import {forMs} from "kht/lib";
 import {GameHelper} from "./model/game";
 import {DGID} from "dgip-ts";
+import {IServerStatus} from "../constants/rpcMessages";
 
 const cacheTTL = 30000;
 
@@ -113,7 +114,7 @@ export class ServerService {
 
             for (let iNode = 0; iNode < serviceNodes.length; iNode++) {
                 let serviceNode = serviceNodes[iNode];
-                let result = await http().get(`http://${serviceNode.address}:${serviceNode.port}/api/v1/game/server_stats`).then(rsp => {
+                let result: IServerStatus = await http().get(`http://${serviceNode.address}:${serviceNode.port}/api/v1/game/server_stats`).then(rsp => {
                     return rsp.data.result;
                 }).catch(err => {
                     this.log.warn(`get online_counts of server ${serviceName}:${serviceNode.id} failed, error: ${err.message} stack: ${err.stack}`);
