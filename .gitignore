@@ -1,5 +1,6 @@
 # development conf
 loginSvr.development.json
+report.*.json
 
 # runtime
 .*.turtle

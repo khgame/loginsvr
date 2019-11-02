@@ -26,12 +26,18 @@ export class GameController {
 
     @Get("/list")
     public async list() {
-        return await GameHelper.list();
+        return (await GameHelper.list() || []).map(v => v.service_name);
     }
 
     @Get("/get_by_name/:service_name")
     public async get(@Param("service_name") service_name: string) {
-        return await GameHelper.getByName(service_name);
+        let game = await GameHelper.getByName(service_name);
+        if (!game) {
+            return null;
+        }
+
+        let {_id: id, create_at} = game;
+        return {id, service_name, create_at};
     }
 
 

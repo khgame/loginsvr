@@ -45,11 +45,11 @@ export class GameHelper {
     }
 
     public static async getByName(service_name: string) {
-        return await GameModel.find({service_name});
+        return GameModel.findOne({service_name});
     }
 
     public static async list() {
-        return await GameModel.find();
+        return GameModel.find();
     }
 
 }

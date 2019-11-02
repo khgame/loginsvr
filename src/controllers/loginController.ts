@@ -72,19 +72,6 @@ export class LoginController {
         return await this.loginServ.changePwd(email, old_pwd, pwd);
     }
 
-    @Post("/find_pwd")
-    public async findPwd(@Body() body: { email: string }) {
-        return await this.loginServ.findPassword(body.email);
-    }
-
-    @Post("/change_email")
-    public async changeEMail(@Body() body: {
-        old_email: string
-        new_email: string, // passport, email, phone
-        pwd: string
-    }) {
-    }
-
     @Post("/change_phone")
     public async changePhone(@Body() body: {
         old_phone: string
@@ -121,6 +108,19 @@ export class LoginController {
     @Post("/re_login")
     public async reLogin(@Body() body: {
         token: string
+    }) {
+    }
+
+    @Post("/find_pwd")
+    public async findPwd(@Body() body: { email: string }) {
+        return await this.loginServ.findPassword(body.email);
+    }
+
+    @Post("/change_email")
+    public async changeEMail(@Body() body: {
+        old_email: string
+        new_email: string, // passport, email, phone
+        pwd: string
     }) {
     }
 
