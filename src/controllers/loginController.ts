@@ -1,10 +1,10 @@
 import {API, Post, Body} from "./decorators";
 import {genAssert, genLogger, turtle} from "@khgame/turtle/lib";
-import {LoginService} from "../logic/loginService";
-import {IAccountDocument, IAccountRegInfo} from "../logic/model/account";
+import {LoginService} from "../services/loginService";
+import {IAccountDocument, IAccountRegInfo} from "../services/model/account";
 import {Ctx, Get, Param} from "routing-controllers";
 import {Context} from "koa";
-import {ILoginRule} from "../constant/iLoginRule";
+import {ILoginRule} from "../iLoginRule";
 
 @API("/login")
 export class LoginController {

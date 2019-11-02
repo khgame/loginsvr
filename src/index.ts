@@ -59,7 +59,7 @@ const defaultConf = {
 
 import * as controllers from "./controllers";
 import { IMailOption } from "@khgame/turtle/lib/utils/sendMail";
-import {ILoginRule} from "./constant/iLoginRule";
+import {ILoginRule} from "./iLoginRule";
 
 const cli = new CommandLineApp(
     "loginSvr",

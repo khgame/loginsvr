@@ -1,6 +1,6 @@
 import { API, Post, Body } from "./decorators";
 import { genAssert, genLogger } from "@khgame/turtle/lib";
-import { ServerService } from "../logic/serverService";
+import { ServerService } from "../services/serverService";
 import {Get, Param} from "routing-controllers";
 
 @API("/server")

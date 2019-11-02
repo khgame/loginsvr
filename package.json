@@ -4,7 +4,7 @@
   "description": "",
   "main": "bin/index.js",
   "bin": {
-    "kh-loginsvr": "bin/index.js"
+    "loginsvr": "bin/index.js"
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts --exit",
