@@ -1,5 +1,5 @@
 # development conf
-loginSvr.development.json
+dg-login.development.json
 report.*.json
 
 # runtime

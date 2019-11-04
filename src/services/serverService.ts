@@ -117,7 +117,7 @@ export class ServerService {
                 let result: IServerStatus = await http().get(`http://${serviceNode.address}:${serviceNode.port}/api/v1/game/server_stats`).then(rsp => {
                     return rsp.data.result;
                 }).catch(err => {
-                    this.log.warn(`get online_counts of server ${serviceName}:${serviceNode.id} failed, error: ${err.message} stack: ${err.stack}`);
+                    this.log.warn(`get server_stats of server ${serviceName}:${serviceNode.id} failed, error: ${err.message} stack: ${err.stack}`);
                 });
 
                 if (result == null) {
