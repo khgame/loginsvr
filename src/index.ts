@@ -4,7 +4,7 @@ import { CommandLineApp, RedisDriver } from "@khgame/turtle";
 import { Api } from "./api/api";
 
 const defaultConf = {
-    name: "loginSvr",
+    name: "dg-login",
     id: 0,
     port: 11801,
     setting: {
@@ -14,7 +14,7 @@ const defaultConf = {
         "mongo": {
             host: "127.0.0.1",
             port: 27017,
-            database: "loginSvr",
+            database: "dg-login",
             username: "",
             password: ""
         },
@@ -23,7 +23,7 @@ const defaultConf = {
             family: 4,
             host: "127.0.0.1",
             port: 6379,
-            keyPrefix: "khgame:login:",
+            keyPrefix: "dg-login:",
             key_mutex_wait_threshold: 100
         },
         "discover/consul": {
@@ -62,7 +62,7 @@ import { IMailOption } from "@khgame/turtle/lib/utils/sendMail";
 import {ILoginRule} from "./constants/iRule";
 
 const cli = new CommandLineApp(
-    "loginSvr",
+    "dg-login",
     process.version,
     ["mongo", "redis", "discover/consul"],
     () => new Api(Object.values(controllers), 1000,
