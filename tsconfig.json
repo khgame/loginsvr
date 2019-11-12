@@ -8,7 +8,7 @@
     },
     "outDir": "dist",
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "moduleResolution": "node",
 
     "declaration": true,
@@ -17,10 +17,11 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    
+
     "strict": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
   },
   "include": [
     "src/**/*"

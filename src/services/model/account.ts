@@ -55,7 +55,7 @@ const AccountSchema = new Schema({
     passport: String,
     email: {type: String, unique: true},
     phone: String,
-    password: {type: String, unique: true},
+    password: {type: String},
 
     auth_visit: {type: Number, enum: [1, 2, 3], default: 1},
     auth_gm: {type: Number, enum: [0, 1, 2, 3], default: 1},

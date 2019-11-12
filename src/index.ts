@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 
-import { CommandLineApp, RedisDriver } from "@khgame/turtle";
-import { Api } from "./api/api";
+import "reflect-metadata";
+import {Container} from "typedi";
+import {Action, useContainer} from "routing-controllers";
+
+useContainer(Container);
+
+import {CommandLineApp, IWorker, RedisDriver} from "@khgame/turtle";
+import * as workers from "./workers";
+import {Api} from "./api/api";
 import {defaultConf} from "./defaultConf";
 import * as controllers from "./controllers";
 
@@ -10,7 +17,7 @@ const cli = new CommandLineApp(
     process.version,
     ["mongo", "redis", "discover/consul"],
     () => new Api(Object.values(controllers), 1000,
-        async (action) => {
+        async (action: Action) => {
             const token = action.request.headers.token;
             if (token) {
                 const uid = await RedisDriver.inst.get(token);
@@ -22,5 +29,8 @@ const cli = new CommandLineApp(
             return true;
         }
     ),
-    [], defaultConf);
+    Object.values(workers).map(
+        w => () => Container.get<IWorker>(w)
+    ),
+    defaultConf);
 cli.run();
