@@ -4,7 +4,7 @@ import {ILoginRule} from "./constants/iRule";
 export const defaultConf = {
     name: "dg-login",
     id: 0,
-    port: 11801,
+    port: 12001,
     setting: {
         log_prod_console: "info" as "info",
     },

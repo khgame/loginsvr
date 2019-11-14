@@ -19,7 +19,7 @@ export class GameController {
         service_name: string, game_admin_dgid: DGID, admin_token?: string
     }) {
         this.assert.cStrictEqual(body.admin_token, turtle.rules<ILoginRule>().admin_token, 401,
-            () => `admin_token token ${body.admin_token}  error`);
+            () => `admin_token ${body.admin_token} error`);
         this.assert.cNotNullAndUndefined(body.admin_token, 400, "admin_token must be given");
         return await GameHelper.create(body.service_name, body.game_admin_dgid);
     }

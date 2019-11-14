@@ -45,7 +45,7 @@ After installation, you should got a config file like this:
 {
     "name": "loginSvr",
     "id": 0,
-    "port": 11801,
+    "port": 12001,
     "setting": {
         "log_prod_console": "info"
     },
@@ -76,19 +76,23 @@ After installation, you should got a config file like this:
         }
     },
     "rules": {
+        "admin_token": "FILL_THIS_FILED_WITH_RANDOM_STRING",
         "renewal_time_span": 600,
-        "mail_option": {
-            "host": "smtp.exmail.qq.com",
-            "port": 465,
-            "secureConnection": true,
-            "auth": {
-                "user": "YOUR_EMAIL_ADDRESS",
-                "pass": "YOUR_EMAIL_PASS"
-            }
+                "mail_option": {
+                    "host": "smtp.exmail.qq.com",
+                    "port": 465,
+                    "secureConnection": true,
+                    "auth": {
+                        "user": "YOUR_EMAIL_ADDRESS",
+                        "pass": "YOUR_EMAIL_PASS"
+                    }
         },
-        "servers": [
-            "AVAILABLE_SERVER_NAME"
-        ]
+        "active_host": "",
+        "frontend_host": "",
+        "validate_redirect": "https://www.github.com/bagaking", 
+        "use_public_id": true,
+        "sign_in_tpl": "./tpl/sign_in.html",
+        "find_pwd_tpl": "./tpl/find_pwd.html",
     }
 }
 ```
@@ -97,7 +101,7 @@ Updates these config entries, replace then with your own setting.
 
 structure of "rules":
 
-```json
+```typescript
 export interface ILoginRule {
 
     renewal_time_span: number;
