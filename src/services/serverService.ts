@@ -7,9 +7,9 @@ import {GameHelper} from "./model/game";
 import {DGID} from "dgip-ts";
 import {IServerStatus} from "../constants/rpcMessages";
 import {ServerSyncWorker} from "../workers";
+import {ERROR_CODE} from "../constants/errorCode";
 
 const cacheTTL = 30000;
-
 
 
 @Service()
@@ -37,9 +37,11 @@ export class ServerService {
 
         // test the service
         const cachedService = this.serverWorker.serverStatus[serviceName];
-        this.assert.cok(cachedService, 404, `cannot find available service of name ${serviceName}`);
+        this.assert.cok(cachedService, ERROR_CODE.SERVICE_NOT_FOUND,
+            () => `cannot find available service of name ${serviceName}`);
         const serverNodes = cachedService.servers[serverId];
-        this.assert.cok(serverNodes, 404, `cannot find server ${serverId} of service ${serviceName}`);
+        this.assert.cok(serverNodes, ERROR_CODE.SERVER_NOT_FOUND,
+            () => `cannot find server ${serverId} of service ${serviceName}`);
 
         // get and test the user
         const dgid = await this.loginService.getOnlineUIDByToken(webToken);
@@ -56,9 +58,9 @@ export class ServerService {
                 node = nodeTemp;
             }
         }
-        this.assert.ok(node, `cannot find available node for server ${serverId} of service ${serviceName}`);
+        this.assert.cok(node, ERROR_CODE.AVAILABLE_NODE_NOT_FOUND, () => `cannot find available node for server ${serverId} of service ${serviceName}`);
 
-        // request game/create_session of the selected node
+        // request game/create_session of the selected node:
         const urlCreateSession = `http://${node.address}:${node.port}/api/v1/game/create_session`;
         let data = {
             uid: Number(dgid),
@@ -70,7 +72,7 @@ export class ServerService {
         this.log.info(`try require session : ${urlCreateSession}`);
         const rsp = await http().post<any>(urlCreateSession, data);
 
-        this.assert.ok(rsp && rsp.data && rsp.data.status === 200 && rsp.data.result,
+        this.assert.cok(rsp && rsp.data && rsp.data.status === 200 && rsp.data.result, ERROR_CODE.SESSION_NOT_FOUND,
             () => `require session of ${serviceName}.${serverId} from node ${node.id} failed, dgid: ${dgid}`);
         const use_public_ip = turtle.rules<ILoginRule>().use_public_id;
 

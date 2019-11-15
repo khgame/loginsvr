@@ -68,12 +68,12 @@ export class LoginService {
     }
 
     async signInByEmail(email: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
-        this.assert.ok(email, () => `sign in by email failed, the email cannot be empty.`);
-        this.assert.ok(pwd, () => `sign in by email ${email} failed, the pwd cannot be empty.`);
-        this.assert.ok(typeof pwd === "string", () => `sign in by email ${email} failed, the pwd should be a string.`);
+        this.assert.cok(email, ERROR_CODE.PARAM_ERROR, () => `sign in by email failed, the email cannot be empty.`);
+        this.assert.cok(pwd, ERROR_CODE.PARAM_ERROR, () => `sign in by email ${email} failed, the pwd cannot be empty.`);
+        this.assert.cok(typeof pwd === "string", ERROR_CODE.PARAM_ERROR, () => `sign in by email ${email} failed, the pwd should be a string.`);
 
         const emailOrg = await AccountModel.findOne({email});
-        this.assert.ok(!emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
+        this.assert.cok(!emailOrg, ERROR_CODE.PASSPORT_ALREADY_EXIST, () => `sign in by email ${email} failed, this email is already exist.`);
 
 
         let md5 = crypto.createHash('md5');
@@ -92,7 +92,7 @@ export class LoginService {
         const port = turtle.runtime.port;
 
         const url = `${rule.active_host || ("http://" + address + ":" + port + "/api/v1/login/validate_email/")}${redisKey}`;
-        this.assert.cok(url, ERROR_CODE.ConfigError, () => `sign in by email: cannot create url by ${rule.active_host}`);
+        this.assert.cok(url, ERROR_CODE.CONFIG_ERROR, () => `sign in by email: cannot create url by ${rule.active_host}`);
 
         this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
 
@@ -100,7 +100,7 @@ export class LoginService {
 
         const tpl: string = await this.tplCache.getLoosingCache(pathOfSignInEmailTpl, async (key: string) => {
             const exist = fs.existsSync(key);
-            this.assert.cok(exist, ERROR_CODE.ConfigError, () => `sign in by email failed: template file ${pathOfSignInEmailTpl} are not exist`);
+            this.assert.cok(exist, ERROR_CODE.CONFIG_ERROR, () => `sign in by email failed: template file ${pathOfSignInEmailTpl} are not exist`);
             return fs.readFileSync(pathOfSignInEmailTpl, {encoding: "utf-8"});
         }, 60);
 
@@ -108,7 +108,7 @@ export class LoginService {
             {from: /{url}/, to: url},
             {from: /{redisKey}/, to: redisKey},
         ]);
-        this.assert.cok(html, ERROR_CODE.TemplateLoadingFailed,
+        this.assert.cok(html, ERROR_CODE.TEMPLATE_LOADING_FAILED,
             () => `sign in by email failed: cannot find the email template.`
         );
 
@@ -132,12 +132,12 @@ export class LoginService {
 
     async loginByPassport(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
         const account = await AccountHelper.getByPassport(passport);
-        this.assert.ok(account, () => `login by passport ${passport} failed, this pass port does not exist.`);
+        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST, () => `login by passport ${passport} failed, this passport does not exist.`);
 
         let md5 = crypto.createHash('md5');
         const password = md5.update(pwd).digest('hex');
 
-        this.assert.sEqual(account!.password, password, () => `login by passport ${passport} failed, password not match.`);
+        this.assert.cStrictEqual(account!.password, password, ERROR_CODE.PASSWORD_NOT_MATCH, () => `login by passport ${passport} failed, password not match.`);
 
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
@@ -152,12 +152,12 @@ export class LoginService {
 
     async loginByEmail(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
         const account = await AccountHelper.getByEmail(passport);
-        this.assert.ok(account, () => `login by email ${passport} failed, this pass port does not exist.`);
+        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST, () => `login by email ${passport} failed, this pass port does not exist.`);
 
         let md5 = crypto.createHash('md5');
         const password = md5.update(pwd).digest('hex');
 
-        this.assert.sEqual(account!.password, password, () => `login by email ${passport} failed, password not match.`);
+        this.assert.cStrictEqual(account!.password, password, ERROR_CODE.PASSWORD_NOT_MATCH, () => `login by email ${passport} failed, password not match.`);
 
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
@@ -171,10 +171,10 @@ export class LoginService {
     }
 
     async findPassword(email: string) {
-        this.assert.ok(email, () => `sign in by email failed, the email cannot be empty.`);
+        this.assert.cok(email, ERROR_CODE.PASSPORT_ERROR, () => `sign in by email failed, the email cannot be empty.`);
 
         const emailOrg = await AccountModel.findOne({email});
-        this.assert.ok(emailOrg, () => `sign in by email ${email} failed, this email is already exist.`);
+        this.assert.cok(emailOrg, ERROR_CODE.PASSPORT_ALREADY_EXIST, () => `sign in by email ${email} failed, this email is already exist.`);
 
         const md5 = crypto.createHash('md5');
         const webToken = md5.update(`${email}:${Math.random()}`).digest('hex');
@@ -183,7 +183,7 @@ export class LoginService {
 
         const rule = turtle.rules<ILoginRule>();
         const url = `${rule.frontend_host}/?reset_pwd=${redisKey}`;
-        this.assert.cok(url, ERROR_CODE.ConfigError, `find password: cannot create url`);
+        this.assert.cok(url, ERROR_CODE.CONFIG_ERROR, `find password: cannot create url`);
 
         this.log.info(`sign in by email: create web_token address ${url} to ${email}`);
 
@@ -193,7 +193,7 @@ export class LoginService {
 
         const tpl: string = await this.tplCache.getLoosingCache(pathOfFindPwdEmailTpl, async (key: string) => {
             const exist = fs.existsSync(key);
-            this.assert.cok(exist, ERROR_CODE.ConfigError, () => `find password by email failed: template file ${pathOfFindPwdEmailTpl} are not exist`);
+            this.assert.cok(exist, ERROR_CODE.CONFIG_ERROR, () => `find password by email failed: template file ${pathOfFindPwdEmailTpl} are not exist`);
             return fs.readFileSync(pathOfFindPwdEmailTpl, {encoding: "utf-8"});
         }, 60);
 
@@ -201,7 +201,7 @@ export class LoginService {
             {from: /{url}/, to: url},
             {from: /{redisKey}/, to: redisKey},
         ]);
-        this.assert.cok(html, ERROR_CODE.TemplateLoadingFailed,
+        this.assert.cok(html, ERROR_CODE.TEMPLATE_LOADING_FAILED,
             () => `find password by email failed: cannot find the email template.`
         );
 
@@ -217,7 +217,7 @@ export class LoginService {
 
     async resetPwd(token: string, pwd: string) {
         const email = await RedisDriver.inst.get(token);
-        this.assert.ok(email, `${token} is invalid`);
+        this.assert.cok(email, ERROR_CODE.SESSION_NOT_FOUND, () => `${token} is invalid`);
 
         let md5 = crypto.createHash('md5');
         const password = md5.update(pwd).digest('hex');
@@ -233,7 +233,7 @@ export class LoginService {
             email,
             password: old_password
         });
-        this.assert.ok(account, `validate failed, old pwd is error`);
+        this.assert.cok(account, ERROR_CODE.PASSWORD_NOT_MATCH, `validate failed, old pwd is error`);
         md5 = crypto.createHash('md5');
         const new_password = md5.update(pwd).digest('hex');
         return await AccountModel.findOneAndUpdate({
@@ -251,14 +251,14 @@ export class LoginService {
     async getOnlineAccountInfo(webToken: string): Promise<IAccountDocument> {
         const dgid = await this.getOnlineUIDByToken(webToken);
         const account = await AccountHelper.getByUID(parseInt(dgid));
-        this.assert.ok(account, () => `get account by webToken <${webToken}> failed: this account does not exist.`);
+        this.assert.cok(account, ERROR_CODE.SESSION_NOT_FOUND, () => `get account by webToken <${webToken}> failed: this account does not exist.`);
         return account!;
     }
 
     async sendMailHtml(toEmail: string, subject: string, content: string) {
         const email = turtle.rules<ILoginRule>().mail_option.auth.user;
         const indAt = email.indexOf("@") + 1;
-        this.assert.ok(indAt >= 0, `send mail failed, email ${email} format error`);
+        this.assert.cok(indAt >= 0, ERROR_CODE.PARAM_ERROR, () => `send mail failed, email ${email} format error`);
         await mail.sendMailHtml(
             email.substr(indAt),
             email,
@@ -271,10 +271,10 @@ export class LoginService {
 
     async validateEmail(token: string) {
         const data = await RedisDriver.inst.get(token);
-        this.assert.ok(data, `${token} is invalid`);
+        this.assert.cok(data, ERROR_CODE.SESSION_NOT_FOUND, `${token} is invalid`);
 
         const {email, password} = JSON.parse(data!);
-        this.assert.ok(email && password, `${token} is invalid`);
+        this.assert.cok(email && password, ERROR_CODE.PARAM_ERROR, `${token} is invalid`);
 
         const account = new AccountModel({
             email: email,
