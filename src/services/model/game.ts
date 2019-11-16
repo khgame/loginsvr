@@ -44,8 +44,8 @@ export class GameHelper {
         });
     }
 
-    public static async getByName(service_name: string) {
-        return GameModel.findOne({service_name});
+    public static async getByName(service_name: string): Promise<IGameDoc | null> {
+        return await GameModel.findOne({service_name});
     }
 
     public static async list() {
