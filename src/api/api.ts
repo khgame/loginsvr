@@ -5,17 +5,13 @@ import { createServer, Server } from "http";
 import { Logger } from "winston";
 import {genLogger, IApi, APIRunningState, CError} from "@khgame/turtle/lib";
 import { Action } from "routing-controllers";
-import { Container } from "typedi";
 import { forCondition } from "kht/lib";
 import { CoreController } from "./core";
-
-interface IControllers {
-    [key: string]: any;
-}
 
 if (!require) {
     throw new Error("Cannot load routing-controllers. Try to install all required dependencies.");
 }
+
 let routingControllers;
 try {
     routingControllers = require("routing-controllers");
@@ -23,7 +19,7 @@ try {
     throw new Error("routing-controllers package was not found installed. Try to install it: npm install routing-controllers --save");
 }
 
-const { useContainer, useKoaServer } = routingControllers;
+const { useKoaServer } = routingControllers;
 
 
 export class Api implements IApi {
@@ -45,7 +41,6 @@ export class Api implements IApi {
         protected middlewares?: Koa.Middleware[]
     ) {
         this.koa = new Koa();
-        useContainer(Container);
         this.server = createServer(this.koa.callback());
         this.init();
     }

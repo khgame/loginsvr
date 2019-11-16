@@ -19,19 +19,25 @@ export class GameController {
         service_name: string, game_admin_dgid: DGID, admin_token?: string
     }) {
         this.assert.cStrictEqual(body.admin_token, turtle.rules<ILoginRule>().admin_token, 401,
-            () => `admin_token token ${body.admin_token}  error`);
+            () => `admin_token ${body.admin_token} error`);
         this.assert.cNotNullAndUndefined(body.admin_token, 400, "admin_token must be given");
         return await GameHelper.create(body.service_name, body.game_admin_dgid);
     }
 
     @Get("/list")
     public async list() {
-        return await GameHelper.list();
+        return (await GameHelper.list() || []).map(v => v.service_name);
     }
 
     @Get("/get_by_name/:service_name")
     public async get(@Param("service_name") service_name: string) {
-        return await GameHelper.getByName(service_name);
+        let game = await GameHelper.getByName(service_name);
+        if (!game) {
+            return null;
+        }
+
+        let {_id: id, create_at} = game;
+        return {id, service_name, create_at};
     }
 
 

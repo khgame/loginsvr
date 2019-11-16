@@ -25,7 +25,7 @@ GameSchema.pre("save", async function (next) {
     const doc = this as IGameDoc;
     if (doc.isNew) {
         const now = new Date();
-        doc._id = await CounterHelper.incAndGet("dgid");
+        doc._id = await CounterHelper.incAndGet("game_id");
         doc.hash = Crypto.getMd5(doc._id + ":" + Math.random());
         doc.create_at = now;
         // todo: create account?
@@ -45,11 +45,11 @@ export class GameHelper {
     }
 
     public static async getByName(service_name: string) {
-        return await GameModel.find({service_name});
+        return GameModel.findOne({service_name});
     }
 
     public static async list() {
-        return await GameModel.find();
+        return GameModel.find();
     }
 
 }

@@ -1,18 +1,19 @@
 {
-  "name": "@khgame/loginsvr",
-  "version": "0.3.0",
-  "description": "",
-  "main": "bin/export.js",
+  "name": "dg-login",
+  "version": "0.1.0",
+  "description": "dg-login is a out-of-box login server of decentralized game",
+  "main": "dist/export.js",
+  "types": "dist/export.d.ts",
   "bin": {
-    "loginsvr": "bin/index.js"
+    "dglogin": "dist/index.js"
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.test.ts --exit",
-    "build": "rimraf ./bin && npx tsc",
+    "build": "rimraf ./dist && npx tsc",
     "lint": "npx tslint --fix --project .",
     "app": "npx ts-node ./src",
     "watch": "cross-env nodemon --inspect --watch 'src/**/*' -e ts,tsx --exec 'node -r ts-node/register' ./src/index.ts start",
-    "start": "npm run build && node ./bin start",
+    "start": "npm run build && node ./dist start",
     "prepublishOnly": "npm run build"
   },
   "repository": {

@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
-import { Document, Schema } from "mongoose";
-import { CounterHelper } from "./counter";
+import {Document, Schema} from "mongoose";
+import {CounterHelper} from "./counter";
+import {standard_dgid} from "dgip-ts";
 
 export enum AUTH_VISIT {
     NORMAL = 1,
@@ -49,15 +50,15 @@ export interface IAccountDocument extends Document {
 }
 
 const AccountSchema = new Schema({
-    _id: { type: Number, alias: "l2id" },
+    _id: {type: Number, alias: "dgid"},
 
     passport: String,
-    email: { type: String, unique: true },
+    email: {type: String, unique: true},
     phone: String,
-    password: { type: String, unique: true },
+    password: {type: String},
 
-    auth_visit: { type: Number, enum: [1, 2, 3], default: 1 },
-    auth_gm: { type: Number, enum: [0, 1, 2, 3], default: 1 },
+    auth_visit: {type: Number, enum: [1, 2, 3], default: 1},
+    auth_gm: {type: Number, enum: [0, 1, 2, 3], default: 1},
 
     reg_info: {
         ip: String,
@@ -74,18 +75,20 @@ const AccountSchema = new Schema({
     create_at: Date,
 });
 
-AccountSchema.index({ passport: 1 });
-AccountSchema.index({ phone: 1 });
+AccountSchema.index({passport: 1});
+AccountSchema.index({phone: 1});
 
 AccountSchema.pre("save", async function (next) {
     const doc = this as IAccountDocument;
     if (doc.isNew) {
         const now = new Date();
-        const value = await CounterHelper.incAndGet("l2id");
-        if (value === 1) {
-            doc._id = 10001001;
-        } else {
-            doc._id = 20000000 + value;
+        const value = await CounterHelper.incAndGet("dgid");
+        // if (value === 1) {
+        //     doc._id = 10001001;
+        // } else {
+        doc._id = 20000000 + value;
+        if (!standard_dgid.test(doc._id)) {
+            throw new Error(`create account failed: standard_dgid.test(${doc._id}) failed.`);
         }
         doc.create_at = doc.create_at || now;
         doc.login_at = doc.login_at || now;
@@ -100,20 +103,20 @@ AccountSchema.pre("save", async function (next) {
     next();
 });
 
-export const AccountModel = mongoose.model<IAccountDocument>("l2account", AccountSchema);
+export const AccountModel = mongoose.model<IAccountDocument>("dg-accounts", AccountSchema);
 
 export class AccountHelper {
 
     static async getByUID(l2id: number): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({ _id: l2id });
+        return await AccountModel.findOne({_id: l2id});
     }
 
     static async getByPassport(passport: string): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({ passport: passport });
+        return await AccountModel.findOne({passport: passport});
     }
 
     static async getByEmail(email: string): Promise<IAccountDocument | null> {
-        return await AccountModel.findOne({ email: email });
+        return await AccountModel.findOne({email: email});
     }
 
 

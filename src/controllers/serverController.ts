@@ -2,6 +2,7 @@ import { API, Post, Body } from "./decorators";
 import { genAssert, genLogger } from "@khgame/turtle/lib";
 import { ServerService } from "../services/serverService";
 import {Get, Param} from "routing-controllers";
+import {ServerSyncWorker} from "../workers";
 
 @API("/server")
 export class ServerController {
@@ -10,18 +11,19 @@ export class ServerController {
     assert = genAssert('api:server');
 
     constructor(
-        public readonly serverServ: ServerService
+        public readonly serverService: ServerService,
+        public readonly serverSyncWorker: ServerSyncWorker
     ) {
     }
 
     @Get("/list/:service_name")
     public async list(@Param("service_name") service_name: string) {
-        return this.serverServ.list(service_name);
+        return this.serverSyncWorker.list(service_name);
     }
 
     @Get("/status")
     public async status() {
-        return this.serverServ.serverStatus;
+        return this.serverSyncWorker.serverStatus;
     }
 
     @Post("/choose/:service_name")
@@ -30,7 +32,7 @@ export class ServerController {
         server_id: string
     }) {
         const { token, server_id } = body;
-        return await this.serverServ.chooseServer(token, service_name, server_id);
+        return await this.serverService.chooseServer(token, service_name, server_id);
     }
 
     // @Post("/validate_token")

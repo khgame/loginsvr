@@ -38,6 +38,7 @@
 "@khgame/turtle@^0.0.100":
   version "0.0.100"
   resolved "https://registry.yarnpkg.com/@khgame/turtle/-/turtle-0.0.100.tgz#0ee4fd20777332952baf68d98b5e2847e942b571"
+  integrity sha512-99oYLsEPiJ0RprllKEUXC3eUmHyFQ7Q9Gs6DHnJb9Q8ey+IJmrBhR8h37OiEpHD0+Dn8PxaY0+VBt7uwYgQvTw==
   dependencies:
     "@khgame/err" "^0.1.1"
     "@khgame/jsonrpc" "^0.1.7"
