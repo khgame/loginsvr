@@ -53,9 +53,9 @@ const AccountSchema = new Schema({
     _id: {type: Number, alias: "dgid"},
 
     passport: String,
-    email: {type: String, unique: true},
+    email: String,
     phone: String,
-    password: {type: String},
+    password: String,
 
     auth_visit: {type: Number, enum: [1, 2, 3], default: 1},
     auth_gm: {type: Number, enum: [0, 1, 2, 3], default: 1},

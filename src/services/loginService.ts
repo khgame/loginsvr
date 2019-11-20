@@ -42,19 +42,22 @@ export class LoginService {
         return await RedisDriver.inst.set(rkWebToken, dgid, "EX", time);
     }
 
-    async signInByPassport(passport: string, pwd: string, regInfo: IAccountRegInfo = {}) {
+    async registerByPassport(passport: string, pwd: string, regInfo: IAccountRegInfo = {}) {
 
         const accountOrg = await AccountHelper.getByPassport(passport);
         this.assert.ok(!accountOrg, () => `sign in by passport ${passport} failed, this pass port is already exist.`);
 
         let md5 = crypto.createHash('md5');
         const password = md5.update(pwd).digest('hex');
-        const account = new AccountModel({
+        let accountModel = {
             passport: passport,
             password: password,
             reg_info: regInfo
-        });
+        };
+        this.log.info(JSON.stringify(accountModel));
+        const account = new AccountModel(accountModel);
         await account.save();
+
 
         md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account._id}:${Math.random()}`).digest('hex');
@@ -67,7 +70,7 @@ export class LoginService {
         };
     }
 
-    async signInByEmail(email: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
+    async registerByEmail(email: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
         this.assert.cok(email, ERROR_CODE.PARAM_ERROR, () => `sign in by email failed, the email cannot be empty.`);
         this.assert.cok(pwd, ERROR_CODE.PARAM_ERROR, () => `sign in by email ${email} failed, the pwd cannot be empty.`);
         this.assert.cok(typeof pwd === "string", ERROR_CODE.PARAM_ERROR, () => `sign in by email ${email} failed, the pwd should be a string.`);
@@ -122,24 +125,22 @@ export class LoginService {
         return {token: url};
     }
 
-    async signInByPhone(phone: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
+    async registerByPhone(phone: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
         return {token: ""};
     }
 
-    async signInBySign(sign: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
+    async registerBySign(sign: string, pwd: string, accountRegInfo: IAccountRegInfo = {}) {
         return {token: ""};
     }
 
-    async loginByPassport(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
-        const account = await AccountHelper.getByPassport(passport);
-        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST, () => `login by passport ${passport} failed, this passport does not exist.`);
+    async loginByPassport(identity: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
+        const account = await AccountHelper.getByPassport(identity);
+        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST, () => `login by passport ${identity} failed, this passport does not exist.`);
+
+        const password = pwd; // md5.update(pwd).digest('hex');
+        this.assert.cStrictEqual(account!.password, password, ERROR_CODE.PASSWORD_NOT_MATCH, () => `login by passport ${identity} failed, password not match.`);
 
         let md5 = crypto.createHash('md5');
-        const password = md5.update(pwd).digest('hex');
-
-        this.assert.cStrictEqual(account!.password, password, ERROR_CODE.PASSWORD_NOT_MATCH, () => `login by passport ${passport} failed, password not match.`);
-
-        md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
 
         await this.renewalWebToken(webToken, account!._id);
@@ -150,16 +151,15 @@ export class LoginService {
         };
     }
 
-    async loginByEmail(passport: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
-        const account = await AccountHelper.getByEmail(passport);
-        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST, () => `login by email ${passport} failed, this pass port does not exist.`);
+    async loginByEmail(identity: string, pwd: string, loginInfo: IAccountLoginInfo = {}) {
+        const account = await AccountHelper.getByEmail(identity);
+        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST, () => `login by email ${identity} failed, this pass port does not exist.`);
+
+        const password = pwd; // md5.update(pwd).digest('hex');
+
+        this.assert.cStrictEqual(account!.password, password, ERROR_CODE.PASSWORD_NOT_MATCH, () => `login by email ${identity} failed, password not match.`);
 
         let md5 = crypto.createHash('md5');
-        const password = md5.update(pwd).digest('hex');
-
-        this.assert.cStrictEqual(account!.password, password, ERROR_CODE.PASSWORD_NOT_MATCH, () => `login by email ${passport} failed, password not match.`);
-
-        md5 = crypto.createHash('md5');
         const webToken = md5.update(`${account!._id}:${Math.random()}`).digest('hex');
 
         await this.renewalWebToken(webToken, account!._id);
