@@ -3,6 +3,7 @@ import {genAssert, genLogger, turtle} from "@khgame/turtle/lib";
 import {LoginService} from "../services/loginService";
 import {IAccountDocument, IAccountRegInfo} from "../services/model/account";
 import {Ctx, Get, Param} from "routing-controllers";
+import {ERROR_CODE} from "../constants/errorCode";
 
 @API("/account")
 export class AccountController {
@@ -16,13 +17,20 @@ export class AccountController {
 
     @Post("/change_pwd")
     public async changePwd(@Body() body: {
-        email: string
+        email?: string,
+        passport?: string,
         old_pwd: string, // passport, email, phone
         pwd: string
     }) {
-        const {email, old_pwd, pwd} = body;
-        return await this.loginService.changePwd(email, old_pwd, pwd);
+        const {email, passport, old_pwd, pwd} = body;
+        if (email) {
+            return await this.loginService.changePwdOfEmail(email, old_pwd, pwd);
+        } else if (passport) {
+            return await this.loginService.changePwdOfPassport(passport, old_pwd, pwd);
+        }
+        this.assert.cThrow(ERROR_CODE.PARAM_ERROR, "identity error");
     }
+
 
     @Post("/change_phone")
     public async changePhone(@Body() body: {

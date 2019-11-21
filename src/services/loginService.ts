@@ -226,18 +226,30 @@ export class LoginService {
         return account;
     }
 
-    async changePwd(email: string, old_pwd: string, pwd: string) {
+    async changePwdOfEmail(email: string, old_pwd_hash: string, pwd: string) {
+        const account = await AccountHelper.getByEmail(email);
+        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST,
+            () => `change pwd of email failed: cannot found user ${email}`);
+        this.assert.cStrictEqual(account!.password, old_pwd_hash, ERROR_CODE.PASSWORD_NOT_MATCH,
+            () => `change pwd of email failed: validate failed ${email} ${old_pwd_hash}`);
+
         let md5 = crypto.createHash('md5');
-        const old_password = md5.update(old_pwd).digest('hex');
-        const account = await AccountModel.findOne({
-            email,
-            password: old_password
-        });
-        this.assert.cok(account, ERROR_CODE.PASSWORD_NOT_MATCH, `validate failed, old pwd is error`);
-        md5 = crypto.createHash('md5');
         const new_password = md5.update(pwd).digest('hex');
         return await AccountModel.findOneAndUpdate({
-            email, password: old_password
+            email, password: old_pwd_hash
+        }, {$set: {password: new_password}}, {new: true});
+    }
+
+    async changePwdOfPassport(passport: string, old_pwd_hash: string, pwd: string) {
+        const account = await AccountHelper.getByPassport(passport);
+        this.assert.cok(account, ERROR_CODE.PASSPORT_DOSE_NOT_EXIST,
+            () => `change pws of passport failed: cannot found user ${passport}`);
+        this.assert.cStrictEqual(account!.password, old_pwd_hash, ERROR_CODE.PASSWORD_NOT_MATCH,
+            () => `change pws of passport failed: validate failed ${passport} ${old_pwd_hash}`);
+        let md5 = crypto.createHash('md5');
+        const new_password = md5.update(pwd).digest('hex');
+        return await AccountModel.findOneAndUpdate({
+            passport, password: old_pwd_hash
         }, {$set: {password: new_password}}, {new: true});
     }
 
