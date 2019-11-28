@@ -49,7 +49,7 @@ export const defaultConf = {
         active_host: "",
         frontend_host: "",
         validate_redirect: "https://www.github.com/bagaking",
-        use_public_id: true,
+        use_public_ip: true,
         sign_in_tpl: "./tpl/sign_in.html",
         find_pwd_tpl: "./tpl/find_pwd.html",
     } as ILoginRule

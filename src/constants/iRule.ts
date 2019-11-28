@@ -30,7 +30,7 @@ export interface ILoginRule {
     /**
      * determine which ip address should be used when select server
      */
-    use_public_id: boolean;
+    use_public_ip: boolean;
 
     /**
      * template page of sign in

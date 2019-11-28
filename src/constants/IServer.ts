@@ -1,5 +1,6 @@
 import {IServiceNode} from "@khgame/turtle";
 import {DGID} from "dgip-ts";
+import * as HashRing from "hashring";
 
 export interface IServerNode extends IServiceNode {
     tag?: string;
@@ -8,12 +9,17 @@ export interface IServerNode extends IServiceNode {
     cache_at: number;
 }
 
+export interface IServerNodes {
+    [server_id: string]: {
+        [strHostPort: string]: IServerNode
+    };
+}
+
 export interface IService {
     hash: string;
     admin_dgid: DGID;
-    servers: {
-        [server_id: string]: IServerNode[]
-    };
+    rings: { [server_id: string]: HashRing };
+    servers: IServerNodes;
 }
 
 export type Services = {

@@ -91,7 +91,7 @@ export class LoginService {
         // const self = await DiscoverConsulDriver.inst.getSelf();
         // this.assert.ok(self, "self is not exist");
         const rule = turtle.rules<ILoginRule>();
-        const address = rule.use_public_id ? turtle.runtime.ip_public : turtle.runtime.ip;
+        const address = rule.use_public_ip ? turtle.runtime.ip_public : turtle.runtime.ip;
         const port = turtle.runtime.port;
 
         const url = `${rule.active_host || ("http://" + address + ":" + port + "/api/v1/login/validate_email/")}${redisKey}`;

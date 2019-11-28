@@ -8,6 +8,8 @@ import {DGID} from "dgip-ts";
 import {IServerStatus} from "../constants/rpcMessages";
 import {ServerSyncWorker} from "../workers";
 import {ERROR_CODE} from "../constants/errorCode";
+import {IServerNode, IServerNodes} from "../constants/IServer";
+import * as HashRing from "hashring";
 
 const cacheTTL = 30000;
 
@@ -39,25 +41,19 @@ export class ServerService {
         const cachedService = this.serverWorker.serverStatus[serviceName];
         this.assert.cok(cachedService, ERROR_CODE.SERVICE_NOT_FOUND,
             () => `cannot find available service of name ${serviceName}`);
-        const serverNodes = cachedService.servers[serverId];
-        this.assert.cok(serverNodes, ERROR_CODE.SERVER_NOT_FOUND,
+        const server: { [strHostPort: string]: IServerNode } = cachedService.servers[serverId];
+        this.assert.cNotNullAndUndefined(server, ERROR_CODE.SERVER_NOT_FOUND,
             () => `cannot find server ${serverId} of service ${serviceName}`);
+        const ring: HashRing = cachedService.rings[serverId];
+        this.assert.cNotNullAndUndefined(ring, ERROR_CODE.SERVER_NOT_FOUND,
+            () => `cannot find ring ${serverId} of service ${serviceName}`);
 
         // get and test the user
         const dgid = await this.loginService.getOnlineUIDByToken(webToken);
 
         // find a node
-        let node: any = null;
-        const now = Date.now();
-        for (let i = 0; i < serverNodes.length; i++) { // todo: refine this method for user cache updates with Consistent Hashing algorithm.
-            const nodeTemp = serverNodes[i];
-            if (!nodeTemp || nodeTemp.cache_at < now - cacheTTL) {
-                continue;
-            }
-            if (!node || node.userCount < (nodeTemp.online_count || 0)) {
-                node = nodeTemp;
-            }
-        }
+        let strHostPort: string = ring.get(dgid);
+        let node: IServerNode = server[strHostPort];
         this.assert.cok(node, ERROR_CODE.AVAILABLE_NODE_NOT_FOUND, () => `cannot find available node for server ${serverId} of service ${serviceName}`);
 
         // request game/create_session of the selected node:
@@ -74,7 +70,7 @@ export class ServerService {
 
         this.assert.cok(rsp && rsp.data && rsp.data.status === 200 && rsp.data.result, ERROR_CODE.SESSION_NOT_FOUND,
             () => `require session of ${serviceName}.${serverId} from node ${node.id} failed, dgid: ${dgid}`);
-        const use_public_ip = turtle.rules<ILoginRule>().use_public_id;
+        const use_public_ip = turtle.rules<ILoginRule>().use_public_ip;
 
         // record choose server info
         this.usersChooseServerInfos[dgid] = {

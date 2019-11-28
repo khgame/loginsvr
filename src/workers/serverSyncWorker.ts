@@ -1,17 +1,18 @@
-
 import {Service} from "typedi";
-import {DiscoverConsulDriver, http, IServiceNode, IWorker, Worker, WorkerRunningState} from "@khgame/turtle";
+import {DiscoverConsulDriver, http, IServiceNode, IWorker, turtle, Worker, WorkerRunningState} from "@khgame/turtle";
 import {forMs} from "kht/lib";
-import {GameHelper} from "../services/model/game";
+import {GameHelper, IGameDoc} from "../services/model/game";
 import {IServerStatus} from "../constants/rpcMessages";
-import {IServerNode, Services} from "../constants/IServer";
+import {IServerNode, IServerNodes, Services} from "../constants/IServer";
+import * as HashRing from "hashring";
+import {ILoginRule} from "../constants/iRule";
 
 @Service()
 export class ServerSyncWorker extends Worker implements IWorker {
 
     cachedServices: Services = {};
 
-    constructor( ) {
+    constructor() {
         super("serverSync");
         this.runningState = WorkerRunningState.PREPARED;
     }
@@ -43,7 +44,7 @@ export class ServerSyncWorker extends Worker implements IWorker {
             await forMs(5000); // cache server list every 5 sec
             this.processRunning += 1;
             try {
-                await this.refreshCache();
+                await this.refreshServerForGames();
             } catch (e) {
                 this.log.error(`⊙ proc of worker ${this.name} error: ${e}, ${e.stack} `);
                 throw e;
@@ -55,68 +56,122 @@ export class ServerSyncWorker extends Worker implements IWorker {
         }
     }
 
-    public async refreshCache() {
-        let services = await GameHelper.list();
-        if (!services) {
-            this.log.warn("refresh cache aborted: no service are found");
-            return;
+    public async refreshServiceForGame(game: IGameDoc): Promise<IServerNodes | null> {
+        const serviceName = game.service_name;
+
+        // generate cache node
+        let cacheService = this.cachedServices[serviceName] = this.cachedServices[serviceName] || {
+            hash: game.hash,
+            admin_dgid: game.admin_dgid,
+            rings: {},
+            servers: {}
+        };
+
+        /** get all services form the register center */
+        let gameNodes: IServiceNode[] = [];
+        try {
+            gameNodes = await DiscoverConsulDriver.inst.serviceNodes(serviceName);
+        } catch (e) {
+            this.log.error(`get serviceNodes failed, error: ${e.message} stack: ${e.stack}`);
         }
-        this.log.debug(`start refresh cache of ${services}`);
-        for (let i = 0; i < services.length; i++) {
-            const service = services[i];
-            const serviceName = service.service_name;
 
-            // generate cache node
-            this.cachedServices[serviceName] = this.cachedServices[serviceName] || {
-                hash: service.hash,
-                admin_dgid: service.admin_dgid,
-                servers: {}
-            };
-            let cacheService = this.cachedServices[serviceName];
+        if (gameNodes.length === 0) {
+            this.log.info(`cannot find instance of service ${serviceName}`);
+            return null;
+        }
 
-            /** get all cachedServices */
-            let serviceNodes: IServiceNode[] = [];
-            try {
-                serviceNodes = await DiscoverConsulDriver.inst.serviceNodes(serviceName);
-            } catch (e) {
-                this.log.error(`get serviceNodes failed, error: ${e.message} stack: ${e.stack}`);
-            }
+        let servers: IServerNodes = {};
 
-            if (serviceNodes.length === 0) {
-                this.log.info(`cannot find instance of service ${serviceName}`);
+        // for all game nodes
+        for (let iNode = 0; iNode < gameNodes.length; iNode++) {
+            let gameNode = gameNodes[iNode];
+
+            // requests the status of the game node
+            let result: IServerStatus = await http()
+                .get(`http://${gameNode.address}:${gameNode.port}/api/v1/game/server_stats`).then(rsp => {
+                    return rsp.data.result;
+                }).catch(err => {
+                    this.log.warn(`get server_stats of server ${serviceName}:${gameNode.id} failed, error: ${err.message} stack: ${err.stack}`);
+                });
+
+            // if the game are not healthy, skip it
+            if (result == null) {
                 continue;
             }
 
-            let servers: {
-                [server_id: string]: IServerNode[]
-            } = {};
+            // get server of the gameNode
+            let serverId: string = result.server_id.toString(); // todo: support multiple server
+            let server = servers[serverId] || (servers[serverId] = {});
 
-            for (let iNode = 0; iNode < serviceNodes.length; iNode++) {
-                let serviceNode = serviceNodes[iNode];
-                let result: IServerStatus = await http().get(`http://${serviceNode.address}:${serviceNode.port}/api/v1/game/server_stats`).then(rsp => {
-                    return rsp.data.result;
-                }).catch(err => {
-                    this.log.warn(`get server_stats of server ${serviceName}:${serviceNode.id} failed, error: ${err.message} stack: ${err.stack}`);
-                });
+            let {server_tag: tag, ip_public, online_count} = result;
 
-                if (result == null) {
-                    continue;
+            let serverNode: IServerNode = {
+                ...gameNode, // service_node info of the game
+                tag,
+                ip_public,
+                online_count,
+                cache_at: Date.now()
+            };
+
+            let host = turtle.rules<ILoginRule>().use_public_ip ? serverNode.ip_public : serverNode.address;
+            let port = serverNode.port;
+
+            server[`${host}:${port}`] = serverNode;
+        }
+
+        let oldServers = cacheService.servers;
+
+        // end the ring of which the server are not exist anymore.
+        for (let serverId in oldServers) {
+            let ring = cacheService.rings[serverId];
+            if (!(serverId in servers)) {
+                ring.end();
+            }
+        }
+
+        // for all servers exist
+        for (let serverId in servers) {
+
+            // obtain or create ring of the server
+            let ring = cacheService.rings[serverId] || (cacheService.rings[serverId] = new HashRing([]));
+            let oldServer = oldServers[serverId] || {};
+            let server = servers[serverId];
+
+            // removes host, which are not exist in the new server list, from the ring
+            for (let host in oldServer) {
+                if (!(host in server)) {
+                    ring.remove(host);
                 }
-                let serverId: string = result.server_id.toString(); // todo: support multiple server
-                if (!servers[serverId]) {
-                    servers[serverId] = [];
-                }
-                servers[serverId].push({
-                    ...serviceNode,
-                    tag: result.server_tag,
-                    ip_public: result.ip_public,
-                    online_count: result.online_count,
-                    cache_at: Date.now()
-                });
             }
 
-            cacheService.servers = servers;
+            // adds host, which are not exist in the old server list, to the ring
+            for (let host in server) {
+                if (!(host in oldServer)) {
+                    ring.add(host);
+                }
+            }
         }
-        this.log.debug(`finish refresh cache, ${JSON.stringify(this.cachedServices)}`);
+
+        // set new servers
+        return cacheService.servers = servers;
+    }
+
+    public async refreshServerForGames() {
+        let games: IGameDoc[] = await GameHelper.list();
+        if (!games) {
+            this.log.warn("refresh cache aborted: no service are found");
+            return;
+        }
+        this.log.debug(`start refresh cache of ${games}`);
+        for (let i = 0; i < games.length; i++) {
+            const game = games[i];
+            let servers = await this.refreshServiceForGame(game);
+            if (servers) {
+                this.log.debug(`finish refresh cache, servers of game ${game._id}:${game.service_name} => ${JSON.stringify(servers)}`);
+            } else {
+                this.log.debug(`finish refresh cache, cannot found servers of game ${game._id}:${game.service_name}`);
+            }
+        }
+
     }
 }

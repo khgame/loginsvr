@@ -48,8 +48,8 @@ export class GameHelper {
         return await GameModel.findOne({service_name});
     }
 
-    public static async list() {
-        return GameModel.find();
+    public static async list(): Promise<IGameDoc[]> {
+        return GameModel.find({});
     }
 
 }
