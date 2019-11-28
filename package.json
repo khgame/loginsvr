@@ -1,6 +1,6 @@
 {
   "name": "dg-login",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "dg-login is a out-of-box login server of decentralized game",
   "main": "dist/export.js",
   "types": "dist/export.d.ts",
